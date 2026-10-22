@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "region": "서울특별시 성북구",
+  "items": [
+    {
+      "id": "pet_bottle",
+      "name": "투명 생수·음료 페트병",
+      "aliases": ["생수병", "음료수병", "물병", "페트병", "PET"],
+      "reviewStatus": "needs_local_review",
+      "startNodeId": "contents",
+      "nodes": [
+        {"id":"contents", "prompt":"생수·음료가 담겼던 무색 투명 페트병인가요?", "choices":[{"label":"네, 투명 생수·음료 페트병이에요", "nextNodeId":"clear_pet"},{"label":"아니요 / 잘 모르겠어요", "nextNodeId":"check_type"}]},
+        {"id":"clear_pet", "result":{"destination":"투명페트병 별도 배출", "steps":["내용물을 비우고 헹궈 주세요.","라벨을 제거해 주세요.","압착한 뒤 뚜껑을 닫아 주세요.","투명페트병을 별도로 모아 배출하고, 주거지의 성북구 수거 안내를 확인하세요."],"explanation":"생수·음료용 무색 투명 페트병의 개발용 안내입니다. 모든 투명 용기가 같은 대상인 것은 아닙니다.","sourceUrls":["https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"]}},
+        {"id":"check_type", "result":{"destination":"용도와 재질 확인 필요", "steps":["무엇이 담겼던 용기인지와 분리배출 표시를 확인하세요.","식품 트레이·유색 용기 등을 투명 생수병과 동일하게 처리하지 않도록 공식 품목사전에서 정확한 품목을 확인하세요."],"explanation":"정보가 부족한 경우 자동으로 배출 종류를 확정하지 않습니다.","sourceUrls":["https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do"]}}
+      ]
+    },
+    {
+      "id": "plastic_container",
+      "name": "배달 플라스틱 용기 (내용물 별도)",
+      "aliases": ["마라탕 용기", "엽떡 용기", "떡볶이 용기", "배달 용기", "기름 묻은 플라스틱"],
+      "reviewStatus": "needs_local_review",
+      "startNodeId": "clean",
+      "nodes": [
+        {"id":"clean", "prompt":"내용물을 비우고 음식물·기름 등의 이물질을 제거한 플라스틱 용기인가요?", "choices":[{"label":"네, 이물질을 제거했어요", "nextNodeId":"recycle"},{"label":"아직 음식물이나 기름이 남았어요", "nextNodeId":"can_clean"}]},
+        {"id":"can_clean", "prompt":"세척해서 이물질을 제거할 수 있나요?", "choices":[{"label":"네, 세척할 수 있어요", "nextNodeId":"wash_first"},{"label":"아니요, 오염을 제거하기 어려워요", "nextNodeId":"general"},{"label":"재질이나 상태를 잘 모르겠어요", "nextNodeId":"check"}]},
+        {"id":"recycle", "result":{"destination":"플라스틱류 분리배출", "steps":["용기의 분리배출 표시를 확인하세요.","뚜껑·부속품 중 다른 재질은 분리하고, 재질별로 배출하세요."],"explanation":"이 예시는 플라스틱 용기에 관한 것입니다. 음식·국물은 별도로 처리해야 합니다.","sourceUrls":["https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"]}},
+        {"id":"wash_first", "result":{"destination":"이물질 제거 후 재질별 분리배출", "steps":["남은 음식과 국물을 용기에서 분리해 주세요.","헹구는 등 이물질을 제거해 주세요.","분리배출 표시를 확인하고 다른 재질의 부속품을 분리해 배출하세요."],"explanation":"음식 브랜드가 같아도 용기의 재질과 오염 상태에 따라 확인이 필요합니다.","sourceUrls":["https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"]}},
+        {"id":"general", "result":{"destination":"오염 제거가 어려운 용기: 종량제 배출 검토", "steps":["남은 음식과 국물을 용기에서 분리해 주세요.","이물질 제거가 어려운 용기의 배출 방법을 공식 안내에서 확인하세요."],"explanation":"개발용 조건 분기 예시입니다. 해당 용기와 성북구의 최신 안내를 대조한 후 정식 데이터로 확정해야 합니다.","sourceUrls":["https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do"]}},
+        {"id":"check", "result":{"destination":"재질·오염 상태 추가 확인", "steps":["용기의 분리배출 표시를 확인하세요.","공식 품목사전에서 같은 종류의 용기를 찾아 확인하세요."],"explanation":"확인되지 않은 조건은 추측해서 분류하지 않습니다.","sourceUrls":["https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do"]}}
+      ]
+    },
+    {
+      "id": "chicken_bone",
+      "name": "치킨 뼈",
+      "aliases": ["닭뼈", "치킨뼈", "닭 뼈"],
+      "reviewStatus": "needs_local_review",
+      "startNodeId": "result",
+      "nodes": [{"id":"result", "result":{"destination":"일반쓰레기", "steps":["남아 있는 살과 뼈를 구분해 주세요.","뼈는 음식물쓰레기에 섞지 않고 종량제봉투로 배출하는 기준을 확인하세요."],"explanation":"서울시 음식물쓰레기 분리배출 표준안 소개에 근거한 개발용 예시입니다.","sourceUrls":["https://1in.seoul.go.kr/front/board/boardContentsView.do?board_id=9&contents_id=8db9ef985ddc4d589554c602a258f761&menu_id=e43e9996deae49ac9b17aaec9e7e3282"]}}]
+    },
+    {
+      "id": "peach_pit",
+      "name": "복숭아 씨",
+      "aliases": ["복숭아씨", "복숭아 씨앗"],
+      "reviewStatus": "needs_local_review",
+      "startNodeId": "result",
+      "nodes": [{"id":"result", "result":{"destination":"일반쓰레기", "steps":["남은 과육과 딱딱한 씨를 구분해 주세요.","씨는 음식물쓰레기에 섞지 않고 종량제봉투로 배출하는 기준을 확인하세요."],"explanation":"복숭아 씨의 예시이며 모든 과일 씨에 일괄 적용하는 규칙은 아닙니다.","sourceUrls":["https://1in.seoul.go.kr/front/board/boardContentsView.do?board_id=9&contents_id=8db9ef985ddc4d589554c602a258f761&menu_id=e43e9996deae49ac9b17aaec9e7e3282"]}}]
+    },
+    {
+      "id": "clothing",
+      "name": "옷",
+      "aliases": ["의류", "티셔츠", "바지", "헌옷"],
+      "reviewStatus": "needs_local_review",
+      "startNodeId": "reuse",
+      "nodes": [
+        {"id":"reuse", "prompt":"다른 사람이 다시 입을 수 있는 상태인가요?", "choices":[{"label":"네, 다시 입을 수 있어요", "nextNodeId":"reuse_result"},{"label":"아니요 / 상태가 애매해요", "nextNodeId":"check"}]},
+        {"id":"reuse_result", "result":{"destination":"재사용·의류 수거 안내 확인", "steps":["기부·재사용 가능 여부를 살펴보세요.","의류 수거함을 이용한다면 그 수거함의 수거 대상과 배출 방법을 확인하세요."],"explanation":"수거함마다 대상이 다를 수 있으므로 침구류 등을 옷과 동일하게 처리하지 않도록 확인합니다.","sourceUrls":["https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do"]}},
+        {"id":"check", "result":{"destination":"의류 종류와 손상·오염 상태 확인", "steps":["정확한 품목과 오염·손상 상태를 확인하세요.","성북구 공식 안내 또는 품목사전에서 배출 방법을 확인하세요."],"explanation":"정식 데이터 구축 시 성북구의 품목별 예외를 추가할 자리입니다.","sourceUrls":["https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do"]}}
+      ]
+    },
+    {
+      "id": "small_appliance",
+      "name": "소형 폐가전",
+      "aliases": ["드라이기", "헤어드라이어", "토스터", "소형 가전"],
+      "reviewStatus": "needs_local_review",
+      "startNodeId": "result",
+      "nodes": [{"id":"result", "result":{"destination":"성북구 소형 폐가전 수거 안내 확인", "steps":["제품 종류와 크기를 확인하세요.","공동주택과 일반주택의 배출 안내를 구분해 확인하세요.","성북구 공식 안내에서 해당 제품의 수거 경로를 확인하세요."],"explanation":"여러 가전을 하나의 확정된 배출 규칙으로 처리하지 않도록 공식 안내를 연결하는 예시입니다.","sourceUrls":["https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"]}}]
+    }
+  ]
+}
