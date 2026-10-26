@@ -1,6 +1,7 @@
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
+[Bb]in/
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
 [Bb]uilds/
@@ -8,6 +9,6 @@
 .DS_Store
 .idea/
 .vs/
-*.csproj
-*.sln
-*.slnx
+/*.csproj
+/*.sln
+/*.slnx

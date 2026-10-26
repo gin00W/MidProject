@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace SeongbukAR
 {
@@ -36,6 +35,10 @@ namespace SeongbukAR
         public string prompt;
         public GuideChoice[] choices;
         public GuideResult result;
+
+        // Unity's inline serializer may materialize a missing result as an
+        // empty object. Use its content, not object presence, to classify it.
+        public bool IsResult => result != null && result.HasContent;
     }
 
     [Serializable]
@@ -52,6 +55,12 @@ namespace SeongbukAR
         public string[] steps;
         public string explanation;
         public string[] sourceUrls;
+
+        public bool HasContent =>
+            !string.IsNullOrWhiteSpace(destination) ||
+            (steps != null && steps.Length > 0) ||
+            !string.IsNullOrWhiteSpace(explanation) ||
+            (sourceUrls != null && sourceUrls.Length > 0);
     }
 
     // The same data drives both the Editor preview and the iPhone AR scene.
@@ -80,11 +89,12 @@ namespace SeongbukAR
                         throw new ArgumentException(item.id + ": 질문 ID가 비었거나 중복입니다.");
 
                     bool hasChoices = node.choices != null && node.choices.Length > 0;
-                    if (hasChoices == (node.result != null))
-                        throw new ArgumentException(item.id + ": 질문 또는 결과 중 하나가 필요합니다.");
+                    bool hasResult = node.IsResult;
+                    if (hasChoices == hasResult)
+                        throw new ArgumentException(item.id + "/" + node.id + ": 질문 또는 결과 중 하나가 필요합니다.");
                     if (hasChoices && string.IsNullOrWhiteSpace(node.prompt))
                         throw new ArgumentException(item.id + ": 질문 문장이 필요합니다.");
-                    if (node.result != null &&
+                    if (hasResult &&
                         (string.IsNullOrWhiteSpace(node.result.destination) ||
                          node.result.steps == null || node.result.steps.Length == 0 ||
                          node.result.sourceUrls == null || node.result.sourceUrls.Length == 0))

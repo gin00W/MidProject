@@ -16,6 +16,18 @@ AR Foundation과 Apple ARKit XR Plug-in은 공식 레지스트리에서 존재�
 예시 데이터는 모두 `needs_local_review`로 표시되어 있습니다. 공식 자료와 성북구의 현재 안내를 대조한 뒤 검증 상태를 변경해야 합니다.
 이 환경에는 Unity Editor와 Xcode가 없어 실제 프로젝트 임포트·컴파일·아이폰 빌드는 검증하지 못했습니다.
 
+### 미리보기에서 품목 데이터 오류가 표시될 때
+
+`pet_bottle: 질문 또는 결과 중 하나가 필요합니다.` 오류는 질문에 비어 있는 결과 객체가 생기는
+Unity 직렬화 조건을 기존 코드가 처리하지 못해서 발생했습니다. 질문과 결과를 구분하는 코드를 수정했습니다.
+GitHub Desktop에서 `codex/seongbuk-ar-starter-20261022` 브랜치를 사용하고 있다면:
+
+1. Unity의 Play를 중지합니다.
+2. GitHub Desktop에서 **Fetch origin → Pull origin**으로 최신 수정을 받습니다.
+3. Unity로 돌아가 컴파일이 끝나면 `GuidePreview`에서 다시 Play를 누릅니다.
+
+이미 생성한 장면을 다시 만들 필요는 없습니다. 이 수정은 품목 판별과 화면 표시 코드에 적용됩니다.
+
 ## 1. 맥북 준비
 
 1. Unity Hub의 **Installs → 6000.3.22f1의 관리 메뉴 → Add modules**에서 **iOS Build Support**를 설치합니다. 이미 있으면 그대로 사용합니다.

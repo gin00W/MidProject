@@ -147,7 +147,7 @@ namespace SeongbukAR
             if (CurrentItem.reviewStatus != "verified_seongbuk")
                 GUILayout.Label("성북구 기준 검토 전 · 아래 내용은 개발용 예시입니다.", _small);
             GUILayout.Space(16);
-            if (CurrentNode.result != null)
+            if (CurrentNode.IsResult)
             {
                 var result = CurrentNode.result;
                 GUILayout.Label(result.destination, _title);
