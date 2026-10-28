@@ -103,19 +103,39 @@ extern "C" void SBW_ClassifyRgba(const unsigned char *rgba, int byteCount, int w
                     SBWSend(objectName, requestId, NO, @"invalid_image", @"Unable to create camera image.", @[]);
                     return;
                 }
+                CGImageRef focusedImage = NULL;
                 @try
                 {
-                    VNClassifyImageRequest *request = [[VNClassifyImageRequest alloc] init];
-                    VNImageRequestHandler *handler = [[VNImageRequestHandler alloc]
-                        initWithCGImage:image orientation:(CGImagePropertyOrientation)orientation options:@{}];
-                    NSError *error = nil;
-                    BOOL performed = [handler performRequests:@[request] error:&error];
-                    if (!performed || error != nil)
+                    // A second, tighter view helps when the photographed item
+                    // occupies only part of the frame. Keep the wider view too:
+                    // zooming alone can remove a can's rim or a box's edges.
+                    const size_t focusWidth = MAX((size_t)1, (size_t)std::floor(width * 0.70));
+                    const size_t focusHeight = MAX((size_t)1, (size_t)std::floor(height * 0.70));
+                    focusedImage = CGImageCreateWithImageInRect(image, CGRectMake(
+                        ((size_t)width - focusWidth) / 2, ((size_t)height - focusHeight) / 2,
+                        focusWidth, focusHeight));
+                    CGImageRef views[2] = { image, focusedImage };
+                    const NSUInteger viewCount = focusedImage != NULL ? 2 : 1;
+                    NSMutableDictionary<NSString *, NSNumber *> *scores = [NSMutableDictionary new];
+                    NSError *lastError = nil;
+                    NSUInteger completedViews = 0;
+                    for (NSUInteger view = 0; view < viewCount; view++)
                     {
-                        SBWSend(objectName, requestId, NO, @"vision_failed", error.localizedDescription, @[]);
-                    }
-                    else
-                    {
+                        // Navigation or a timeout must also suppress a queued
+                        // zoom pass, rather than classifying a cancelled scan.
+                        if (SBWConsumeCancellation(requestId)) return;
+                        VNClassifyImageRequest *request = [[VNClassifyImageRequest alloc] init];
+                        VNImageRequestHandler *handler = [[VNImageRequestHandler alloc]
+                            initWithCGImage:views[view]
+                            orientation:(CGImagePropertyOrientation)orientation options:@{}];
+                        NSError *error = nil;
+                        BOOL performed = [handler performRequests:@[request] error:&error];
+                        if (!performed || error != nil)
+                        {
+                            lastError = error;
+                            continue;
+                        }
+                        completedViews++;
                         NSArray<VNClassificationObservation *> *observations =
                             [request.results sortedArrayUsingComparator:^NSComparisonResult(
                                 id first, id second) {
@@ -125,24 +145,52 @@ extern "C" void SBW_ClassifyRgba(const unsigned char *rgba, int byteCount, int w
                                 if (left.confidence < right.confidence) return NSOrderedDescending;
                                 return [left.identifier compare:right.identifier];
                             }];
-                        NSMutableArray *labels = [NSMutableArray arrayWithCapacity:12];
+                        NSUInteger retained = 0;
                         for (VNClassificationObservation *observation in observations)
                         {
-                            if (labels.count == 12) break;
+                            if (retained == 16) break;
                             if (observation.identifier.length == 0 || !std::isfinite(observation.confidence) ||
-                                observation.confidence <= 0) continue;
-                            [labels addObject:@{@"identifier": observation.identifier,
-                                                @"confidence": @(observation.confidence)}];
+                                observation.confidence <= 0 || observation.confidence > 1) continue;
+                            retained++;
+                            NSNumber *previous = scores[observation.identifier];
+                            // Scores are neither summed nor treated as an
+                            // accuracy percentage. Preserve an actual model
+                            // observation when combining the two views.
+                            if (previous == nil || observation.confidence > previous.floatValue)
+                                scores[observation.identifier] = @(observation.confidence);
                         }
-                        SBWSend(objectName, requestId, labels.count > 0,
-                            labels.count > 0 ? @"" : @"no_classifications", @"", labels);
                     }
+                    NSArray<NSString *> *identifiers =
+                        [scores.allKeys sortedArrayUsingComparator:^NSComparisonResult(id first, id second) {
+                            float left = [scores[first] floatValue];
+                            float right = [scores[second] floatValue];
+                            if (left > right) return NSOrderedAscending;
+                            if (left < right) return NSOrderedDescending;
+                            return [first compare:second];
+                        }];
+                    NSMutableArray *labels = [NSMutableArray arrayWithCapacity:32];
+                    for (NSString *identifier in identifiers)
+                    {
+                        if (labels.count == 32) break;
+                        [labels addObject:@{@"identifier": identifier, @"confidence": scores[identifier]}];
+                    }
+                    NSString *detail = [NSString stringWithFormat:@"Classified %lu of %lu camera views.",
+                        (unsigned long)completedViews, (unsigned long)viewCount];
+                    if (completedViews == 0)
+                        SBWSend(objectName, requestId, NO, @"vision_failed", lastError.localizedDescription, @[]);
+                    else
+                        SBWSend(objectName, requestId, labels.count > 0,
+                            labels.count > 0 ? @"" : @"no_classifications", detail, labels);
                 }
                 @catch (NSException *exception)
                 {
                     SBWSend(objectName, requestId, NO, @"vision_failed", exception.reason, @[]);
                 }
-                @finally { CGImageRelease(image); }
+                @finally
+                {
+                    if (focusedImage != NULL) CGImageRelease(focusedImage);
+                    CGImageRelease(image);
+                }
             }
         });
     }

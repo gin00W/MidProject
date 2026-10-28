@@ -73,7 +73,7 @@ namespace SeongbukAR
             }
             if (!IsDeviceRuntime)
             {
-                message = "공간 안내는 AR 지원 아이폰에서 사용할 수 있습니다.";
+                message = "공간 안내는 AR 지원 아이폰·아이패드에서 사용할 수 있습니다.";
                 return false;
             }
             if (!IsAvailable)

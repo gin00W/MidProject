@@ -85,6 +85,7 @@ namespace SeongbukAR
             var cameraManager = FindAnyObjectByType<ARCameraManager>();
             if (!editorPreview && cameraManager != null)
             {
+                cameraManager.autoFocusRequested = true;
                 _scanner = GetComponent<WasteScanController>();
                 if (_scanner == null) _scanner = gameObject.AddComponent<WasteScanController>();
                 _scanner.cameraManager = cameraManager;
@@ -201,8 +202,8 @@ namespace SeongbukAR
         {
             if (!CanScan)
             {
-                ShowMessage("아이폰에서 스캔하세요",
-                    "실물 스캔은 아이폰에 앱을 설치한 뒤 사용할 수 있습니다. 맥북에서는 이름 검색과 배출 안내를 확인하세요.");
+                ShowMessage("아이폰·아이패드에서 스캔하세요",
+                    "실물 스캔은 아이폰·아이패드에 앱을 설치한 뒤 사용할 수 있습니다. 맥북에서는 이름 검색과 배출 안내를 확인하세요.");
                 return;
             }
             if (_scanner.IsBusy) return;
@@ -231,6 +232,9 @@ namespace SeongbukAR
             var signals = response.labels.Select(label => new RecognitionSignal
                 { identifier = label.identifier, confidence = label.confidence });
             _candidates = WasteRecognition.Match(_catalog, signals);
+            Debug.Log("Waste scan labels: " + string.Join(", ", response.labels.Select(label =>
+                label.identifier + "=" + label.confidence.ToString("0.000", System.Globalization.CultureInfo.InvariantCulture))) +
+                "; candidates: " + string.Join(", ", _candidates.Select(candidate => candidate.item.id)));
             if (_candidates.Length == 0)
             {
                 ShowMessage("일치하는 물건을 찾지 못했습니다",
@@ -277,27 +281,36 @@ namespace SeongbukAR
         {
             var page = _ui.Begin(CanScan);
             HeaderCard(page, "어디다 버려?");
+            if (CanScan)
+            {
+                var hint = _ui.Card(page, GuideUi.Paper, 10, 0);
+                _ui.Label(hint, "물건 전체를 흰 테두리 안에 크게 맞춰 주세요.", 15, false,
+                    GuideUi.Muted, TextAnchor.MiddleCenter);
+                var space = GuideUi.NewRect("Camera View", page);
+                GuideUi.Size(space, flexibleHeight: 1);
+                var cameraActions = _ui.Card(page, GuideUi.Paper, 0, 4);
+                _ui.Button(cameraActions, "쓰레기 스캔하기", StartScan, true, 52);
+                var links = _ui.Row(cameraActions);
+                var search = _ui.TextButton(links, "이름으로 찾기", () => ShowSearch(""), 44, 15);
+                var notes = _ui.TextButton(links, "내 메모", ShowNotes, 44, 15);
+                GuideUi.Size(search.transform, flexibleWidth: 1);
+                GuideUi.Size(notes.transform, flexibleWidth: 1);
+                _ui.ShowScanFrame();
+                return;
+            }
             var content = _ui.Scroll(page);
             var intro = _ui.Card(content, GuideUi.Paper, 0, 7);
             _ui.Label(intro, "분리배출 안내", 13, false, GuideUi.Muted);
             _ui.Label(intro, "무엇을 버릴까요?", 26, true);
-            _ui.Label(intro, CanScan ? "물건 하나를 가운데 놓고 스캔하세요." : "물건 이름으로 배출 방법을 찾아보세요.",
+            _ui.Label(intro, "물건 이름으로 배출 방법을 찾아보세요.",
                 15, false, GuideUi.Muted);
 
-            var frame = _ui.Card(content, CanScan ? Color.clear : GuideUi.Soft, 16, 8);
+            var frame = _ui.Card(content, GuideUi.Soft, 16, 8);
             GuideUi.Size(frame, height: 174);
-            if (CanScan)
-            {
-                var target = _ui.Label(frame, "+", 30, false, Color.white, TextAnchor.MiddleCenter);
-                GuideUi.Size(target.transform, flexibleHeight: 1);
-            }
-            else
-            {
-                var mark = _ui.ScanMark(frame, 100);
-                GuideUi.Size(mark, flexibleHeight: 1);
-                _ui.Label(frame, "카메라 스캔은 아이폰에서 사용할 수 있습니다.", 13, false,
-                    GuideUi.Muted, TextAnchor.MiddleCenter);
-            }
+            var mark = _ui.ScanMark(frame, 100);
+            GuideUi.Size(mark, flexibleHeight: 1);
+            _ui.Label(frame, "카메라 스캔은 아이폰·아이패드에서 사용할 수 있습니다.", 13, false,
+                GuideUi.Muted, TextAnchor.MiddleCenter);
 
             var shortcuts = _ui.Card(content, GuideUi.Paper, 0, 0);
             _ui.Label(shortcuts, "자주 헷갈리는 물건", 14, true);

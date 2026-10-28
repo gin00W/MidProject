@@ -1,10 +1,18 @@
-# On-device iPhone image classification
+# On-device iPhone/iPad image classification
 
 `WasteScanController` captures one center-cropped rear AR camera frame when
 `RequestScan()` is called. The iOS native plug-in copies the RGBA bytes and runs
-Apple Vision's `VNClassifyImageRequest` on a serial background queue. Results are
+Apple Vision's `VNClassifyImageRequest` on a serial background queue for both
+the captured square and a central 70% crop. Results are
 JSON-encoded and delivered to Unity's main thread through a unique callback
 GameObject. Images are not sent to a server and no API credential is required.
+
+`ScanCaptureGeometry` and the home screen share a 62% short-screen-side aiming
+square, centered on the full Canvas rather than a scroll card or safe area.
+The CPU crop accounts for the rear sensor orientation and the standard centered
+aspect-fill camera background, excluding sensor regions outside the display.
+Auto focus is requested when the camera is configured. Fit the whole object
+inside the frame; the wider classification view retains its edges.
 
 ## Integration
 
@@ -27,8 +35,14 @@ bool started = scanner.RequestScan();
 - `CancelScan()`: cancels a pending UI request and suppresses stale callbacks.
 - `LatestCapturedFrame`: upright snapshot texture for UI; it is owned, replaced
   and destroyed by the controller. Consumers must not destroy it.
-- `ScanResponse.labels`: up to 12 actual Vision identifiers and confidence
-  values. `ScanPayloadRules` validates that envelope before the UI receives it.
+- `ScanResponse.labels`: up to 32 actual Vision identifiers (up to 16 per view).
+  Duplicate identifiers keep the highest observed score, never a sum or an
+  invented accuracy percentage. One successful view can survive an NSError
+  from the other. `ScanPayloadRules` validates the envelope before the UI receives it.
+
+For troubleshooting, the Xcode Unity console logs `Waste scan labels:` with the
+returned identifiers, their actual scores and mapped item IDs. Camera images
+are not logged or saved by this diagnostic.
 
 The iOS build postprocessor links Vision, ImageIO and CoreGraphics frameworks to
 UnityFramework and enables ARC and Objective-C exceptions for this native plug-in file.
@@ -50,9 +64,13 @@ supported item; show a manual choice/search option instead.
 The app is currently portrait-oriented; rear sensor orientation is supplied as
 EXIF Right in portrait, with rear landscape and upside-down mappings included.
 Actual camera orientation, recognition performance, iOS compilation and device
-behavior require validation in Xcode/on an iPhone. They have not been verified
-in this Linux environment. `ScanModels.cs` and `ScanFrameOrientation.cs` have no
-Unity dependency and can be compiled into a .NET regression harness.
+behavior require validation in Xcode/on an iPhone or iPad. The previous version
+ran on the user's iPad Air 11-inch (M3); it missed a beverage can and suggested
+office paper for a box. This revision addresses capture framing, multiple views
+and label mapping, but its on-device accuracy has not been measured. Native
+compilation is not available in this Linux environment. `ScanModels.cs`,
+`ScanFrameOrientation.cs` and `ScanCaptureGeometry.cs` have no Unity dependency
+and are compiled into the .NET regression harness.
 
 Official API references:
 

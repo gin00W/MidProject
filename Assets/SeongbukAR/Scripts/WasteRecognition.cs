@@ -35,7 +35,7 @@ namespace SeongbukAR
             "red", "oil", "grease", "oily", "greasy", "aluminum", "aluminium", "steel",
             "iron", "tin", "pet", "pp", "pe", "polypropylene", "polystyrene",
             "prepared food", "cuisine", "fast food", "junk food", "takeout", "takeaway food",
-            "cap", "lid", "cover", "top", "tube", "fruit peel", "box"
+            "cap", "lid", "cover", "top", "tube", "fruit peel"
         };
 
         static readonly string[] ExcludedPhrases =
@@ -88,8 +88,18 @@ namespace SeongbukAR
                 }
             }
 
+            bool hasContainerEvidence = scores.Keys.Any(id => Is(id, "beverage_can", "food_can",
+                "cardboard_box", "milk_carton", "aseptic_carton", "pizza_box", "pet_bottle",
+                "glass_bottle", "plastic_container", "shipping_bag"));
+
             return scores.Values
-                .OrderByDescending(score => score.candidate.confidence)
+                // A printed shipping label can be classified as a document.
+                // Keep ordinary paper as a fallback only when the photograph
+                // also identifies a supported container or box. Other object
+                // labels retain score order against ordinary paper.
+                // This changes suggestion order, never the classifier score.
+                .OrderBy(score => hasContainerEvidence && score.candidate.item.id == "office_paper")
+                .ThenByDescending(score => score.candidate.confidence)
                 .ThenByDescending(score => score.priority)
                 .ThenBy(score => score.candidate.item.id, StringComparer.Ordinal)
                 .Take(limit)
@@ -100,11 +110,16 @@ namespace SeongbukAR
         static void AddKnownCandidates(WasteCatalog catalog, string label,
             RecognitionSignal signal, Dictionary<string, CandidateScore> scores)
         {
-            if (Is(label, "can", "tin", "tin can", "aluminum can", "aluminium can"))
+            if (Is(label, "can", "cans", "tin can", "tin cans", "tincan", "tincans",
+                "metal can", "metal cans", "aluminum can", "aluminium can", "aluminum cans", "aluminium cans"))
                 AddIds(catalog, signal, scores, "beverage_can", "food_can");
-            else if (Is(label, "soda can", "beverage can", "beer can", "drink can", "soft drink can"))
+            else if (Is(label, "soda can", "soda cans", "beverage can", "beverage cans", "beer can", "beer cans",
+                "drink can", "drink cans", "soft drink can", "soft drink cans", "cola can", "cola cans",
+                "coke can", "coke cans", "pop can", "pop cans", "soda pop can", "pull tab can", "pop top can",
+                "aluminum beverage can", "aluminium beverage can", "aluminum drink can", "aluminium drink can",
+                "aluminum soda can", "aluminium soda can", "aluminum beer can", "aluminium beer can"))
                 AddIds(catalog, signal, scores, "beverage_can", "food_can");
-            else if (Is(label, "food can", "canned food", "soup can", "tuna can"))
+            else if (Is(label, "food can", "food cans", "canned food", "canned goods", "soup can", "tuna can"))
                 AddIds(catalog, signal, scores, "food_can", "beverage_can");
             else if (Is(label, "bottle", "plastic bottle", "water bottle", "soda bottle", "beverage bottle",
                 "glass bottle", "wine bottle", "beer bottle", "pet bottle", "pop bottle"))
@@ -129,8 +144,16 @@ namespace SeongbukAR
                 AddIds(catalog, signal, scores, "plastic_container", "ceramic");
             else if (Is(label, "ice pack"))
                 AddIds(catalog, signal, scores, "water_ice_pack", "gel_ice_pack");
-            else if (Is(label, "carton", "paper carton"))
+            else if (Is(label, "carton", "cartons"))
+                AddIds(catalog, signal, scores, "cardboard_box", "milk_carton", "aseptic_carton");
+            else if (Is(label, "paper carton"))
                 AddIds(catalog, signal, scores, "milk_carton", "aseptic_carton", "cardboard_box");
+            else if (Is(label, "box", "boxes"))
+                // "Box" identifies a shape, not its material. The user must
+                // choose the named object before any disposal advice is given.
+                AddIds(catalog, signal, scores, "cardboard_box", "plastic_container");
+            else if (Is(label, "parcel", "package", "shipping package", "postal package"))
+                AddIds(catalog, signal, scores, "cardboard_box", "shipping_bag");
             else if (Is(label, "button", "clothing button", "garment button", "sewing button"))
                 AddIds(catalog, signal, scores, "button");
             else if (Is(label, "battery", "batteries", "dry cell", "alkaline battery", "rechargeable battery",
@@ -150,7 +173,10 @@ namespace SeongbukAR
                 AddIds(catalog, signal, scores, "fluorescent_lamp", "led_lamp");
             else if (Is(label, "led bulb", "led lamp", "led light"))
                 AddIds(catalog, signal, scores, "led_lamp", "fluorescent_lamp");
-            else if (Is(label, "cardboard box", "corrugated box", "shipping box", "carton box"))
+            else if (Is(label, "cardboard", "cardboard box", "cardboard boxes", "corrugated box",
+                "corrugated cardboard", "corrugated cardboard box", "corrugated carton", "cardboard carton",
+                "cardboard packaging", "shipping box", "shipping carton", "carton box", "packing box",
+                "packaging box", "paperboard box"))
                 AddIds(catalog, signal, scores, "cardboard_box");
         }
 

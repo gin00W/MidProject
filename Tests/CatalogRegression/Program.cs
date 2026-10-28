@@ -107,6 +107,96 @@ static class Program
                 "Expected beverage and food can suggestions.");
             Check(matches[0].confidence == .9f, "Must retain the original classifier score.");
         });
+        Run("beverage can aliases reach the can guide without changing image scores", () =>
+        {
+            foreach (string label in new[] { "cola_can", "beer-cans", "soft_drink_can", "pop can",
+                "ALUMINIUM BEVERAGE CAN", "pull-tab can", "tincan", "metal cans" })
+            {
+                var matches = WasteRecognition.Match(MatchingCatalog(), Signals(label, .61f));
+                Check(matches.Length == 2 && matches[0].item.id == "beverage_can" &&
+                    matches[1].item.id == "food_can", "Can alias did not preserve alternatives: " + label);
+                Check(matches.All(candidate => candidate.confidence == .61f),
+                    "Can alias changed the classifier confidence: " + label);
+            }
+        });
+        Run("cardboard terminology reaches the box guide rather than ordinary paper", () =>
+        {
+            foreach (string label in new[] { "cardboard", "corrugated_cardboard", "corrugated carton",
+                "shipping_carton", "cardboard boxes", "cardboard packaging" })
+            {
+                var matches = WasteRecognition.Match(MatchingCatalog(), Signals(label, .72f));
+                Check(matches.Length == 1 && matches[0].item.id == "cardboard_box",
+                    "Cardboard alias lost the specific box guide: " + label);
+            }
+        });
+        Run("box shape keeps both cardboard and plastic possibilities", () =>
+        {
+            var matches = WasteRecognition.Match(MatchingCatalog(), Signals("box", .85f));
+            Check(matches.Select(candidate => candidate.item.id).SequenceEqual(
+                new[] { "cardboard_box", "plastic_container" }),
+                "A box shape alone must not establish its material.");
+        });
+        Run("ambiguous carton includes a shipping box before drink cartons", () =>
+        {
+            var matches = WasteRecognition.Match(MatchingCatalog(), Signals("carton", .8f));
+            Check(matches.Select(candidate => candidate.item.id).SequenceEqual(
+                new[] { "cardboard_box", "milk_carton", "aseptic_carton" }),
+                "Carton should not be interpreted only as a milk or juice pack.");
+        });
+        Run("document on a box does not outrank the concrete cardboard evidence", () =>
+        {
+            var matches = WasteRecognition.Match(MatchingCatalog(), new[]
+            {
+                new RecognitionSignal { identifier = "document", confidence = .96f },
+                new RecognitionSignal { identifier = "corrugated cardboard box", confidence = .43f }
+            });
+            Check(matches.Select(candidate => candidate.item.id).SequenceEqual(
+                new[] { "cardboard_box", "office_paper" }),
+                "A printed shipping label displaced the cardboard box guide.");
+            Check(matches[0].confidence == .43f && matches[1].confidence == .96f,
+                "Suggestion ranking must not relabel scores as higher confidence.");
+        });
+        Run("document on a beverage can does not displace both can alternatives", () =>
+        {
+            var matches = WasteRecognition.Match(MatchingCatalog(), new[]
+            {
+                new RecognitionSignal { identifier = "document", confidence = .93f },
+                new RecognitionSignal { identifier = "cola can", confidence = .42f }
+            }, 2);
+            Check(matches.Select(candidate => candidate.item.id).SequenceEqual(
+                new[] { "beverage_can", "food_can" }),
+                "Label text displaced the concrete can suggestions within the candidate limit.");
+        });
+        Run("ordinary paper remains available when no container is detected", () =>
+        {
+            var matches = WasteRecognition.Match(MatchingCatalog(), Signals("document", .8f));
+            Check(matches.Length == 1 && matches[0].item.id == "office_paper",
+                "Paper fallback was removed instead of ranked below container evidence.");
+        });
+        Run("unrelated weak object evidence does not displace ordinary paper", () =>
+        {
+            var matches = WasteRecognition.Match(MatchingCatalog(), new[]
+            {
+                new RecognitionSignal { identifier = "document", confidence = .95f },
+                new RecognitionSignal { identifier = "button", confidence = .3f },
+                new RecognitionSignal { identifier = "cardboard box", confidence = .24f }
+            });
+            Check(matches.Select(candidate => candidate.item.id).SequenceEqual(
+                new[] { "office_paper", "button" }),
+                "Paper ranking changed without supported container evidence above the threshold.");
+        });
+        Run("beverage words alone do not claim a can or bottle material", () =>
+        {
+            foreach (string label in new[] { "beverage", "drink", "soda", "beer", "cola", "aluminum" })
+                Check(WasteRecognition.Match(MatchingCatalog(), Signals(label, .99f)).Length == 0,
+                    "Beverage content alone implied a particular container: " + label);
+        });
+        Run("food box evidence preserves the greasy paper box decision guide", () =>
+        {
+            var matches = WasteRecognition.Match(new WasteCatalog(Load()), Signals("pizza box", .9f));
+            Check(matches.Length == 1 && matches[0].item.id == "pizza_box",
+                "A specific food box should not be flattened into ordinary cardboard or paper.");
+        });
         Run("bottle label preserves PET and glass ambiguity", () =>
         {
             var matches = WasteRecognition.Match(MatchingCatalog(), Signals("water_bottle", .9f));
@@ -140,7 +230,7 @@ static class Program
         });
         Run("generic food and material labels do not infer packaging", () =>
         {
-            foreach (string label in new[] { "food", "dish", "plastic", "metal", "red", "oil", "container", "aluminum", "pet", "cap", "fruit peel", "box" })
+            foreach (string label in new[] { "food", "dish", "plastic", "metal", "red", "oil", "container", "aluminum", "pet", "cap", "fruit peel", "tin" })
                 Check(WasteRecognition.Match(MatchingCatalog(), Signals(label, .99f)).Length == 0,
                     "Generic label must not imply a disposal item: " + label);
         });
@@ -153,7 +243,8 @@ static class Program
         });
         Run("can and button matching cannot accidentally match longer nouns", () =>
         {
-            foreach (string label in new[] { "candle", "can_opener", "watering_can", "trash_can", "button_mushroom", "bottle_opener" })
+            foreach (string label in new[] { "candle", "can_opener", "watering_can", "trash_can", "button_mushroom", "bottle_opener",
+                "beer can chicken", "software package", "boxing glove", "mailbox" })
                 Check(WasteRecognition.Match(MatchingCatalog(), Signals(label, .99f)).Length == 0,
                     "Substring false positive: " + label);
         });
@@ -251,7 +342,12 @@ static class Program
                 item("gel_ice_pack", new[] { "gel ice pack" }),
                 item("paper_cup", new[] { "paper cup", "coffee cup" }),
                 item("plastic_cup", new[] { "plastic cup", "cup" }),
-                item("ceramic", new[] { "ceramic mug" })
+                item("ceramic", new[] { "ceramic mug" }),
+                item("cardboard_box", new[] { "cardboard box", "carton", "box" }),
+                item("milk_carton", new[] { "milk carton", "paper carton" }),
+                item("aseptic_carton", new[] { "juice carton", "paper carton" }),
+                item("office_paper", new[] { "paper", "sheet of paper", "document" }),
+                item("shipping_bag", new[] { "plastic mailer" })
             }
         });
     }

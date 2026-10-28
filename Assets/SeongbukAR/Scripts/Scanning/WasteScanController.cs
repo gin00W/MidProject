@@ -46,7 +46,7 @@ namespace SeongbukAR.Scanning
             if (!IsSupported) Status = "이 기기에서는 사진 인식 기능을 사용할 수 없어요.";
 #else
             IsSupported = false;
-            Status = "실물 스캔은 아이폰에 설치한 앱에서 사용할 수 있어요.";
+            Status = "실물 스캔은 아이폰·아이패드에 설치한 앱에서 사용할 수 있어요.";
 #endif
             var callback = new GameObject("SeongbukVisionCallback_" + Guid.NewGuid().ToString("N"));
             callback.transform.SetParent(transform, false);
@@ -59,7 +59,7 @@ namespace SeongbukAR.Scanning
             if (IsBusy) return false;
             if (!IsSupported)
             {
-                Status = "실물 스캔은 아이폰에 설치한 앱에서 사용할 수 있어요.";
+                Status = "실물 스캔은 아이폰·아이패드에 설치한 앱에서 사용할 수 있어요.";
                 return false;
             }
             if (!isActiveAndEnabled || cameraManager == null || !cameraManager.isActiveAndEnabled)
@@ -84,11 +84,13 @@ namespace SeongbukAR.Scanning
             IntPtr buffer = IntPtr.Zero;
             try
             {
-                // Central crop: users should keep one item inside the scan frame.
-                int side = Mathf.Max(1, Mathf.FloorToInt(Mathf.Min(image.width, image.height) * 0.85f));
+                // Match the on-screen frame, including the sensor area hidden
+                // by aspect fill on tall displays. Never sample off-screen background.
+                var crop = ScanCaptureGeometry.CenteredVisibleSquare(image.width, image.height,
+                    Screen.width, Screen.height, orientation);
                 var conversion = new XRCpuImage.ConversionParams
                 {
-                    inputRect = new RectInt((image.width - side) / 2, (image.height - side) / 2, side, side),
+                    inputRect = new RectInt(crop.X, crop.Y, crop.Side, crop.Side),
                     outputDimensions = new Vector2Int(size, size),
                     outputFormat = TextureFormat.RGBA32,
                     transformation = XRCpuImage.Transformation.None
@@ -198,7 +200,7 @@ namespace SeongbukAR.Scanning
                 case ScreenOrientation.PortraitUpsideDown: return 8;
                 case ScreenOrientation.LandscapeLeft: return 1;
                 case ScreenOrientation.LandscapeRight: return 3;
-                default: return 6; // Rear iPhone sensor held in portrait.
+                default: return 6; // Rear iPhone/iPad sensor held in portrait.
             }
         }
 

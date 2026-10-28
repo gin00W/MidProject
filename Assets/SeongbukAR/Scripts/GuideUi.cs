@@ -1,4 +1,5 @@
 using System;
+using SeongbukAR.Scanning;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -26,6 +27,7 @@ namespace SeongbukAR
         readonly Image _background;
         readonly Vector3[] _fieldCorners = new Vector3[4];
         GameObject _page;
+        RectTransform _scanFrame;
         Rect _lastSafe;
         InputField _lastSelectedInput;
         static Sprite _rounded;
@@ -76,6 +78,13 @@ namespace SeongbukAR
                 safe.yMin = Mathf.Min(top - 180, Mathf.Max(safe.yMin, TouchScreenKeyboard.area.yMax));
             }
             if (Screen.width <= 0 || Screen.height <= 0) return;
+            if (_scanFrame != null)
+            {
+                var canvas = _scanFrame.GetComponentInParent<Canvas>();
+                float side = Mathf.Min(Screen.width, Screen.height) * ScanCaptureGeometry.FrameCoverage /
+                    Mathf.Max(0.01f, canvas.scaleFactor);
+                _scanFrame.sizeDelta = new Vector2(side, side);
+            }
             bool safeChanged = safe != _lastSafe;
             if (safeChanged)
             {
@@ -136,6 +145,12 @@ namespace SeongbukAR
 
         internal RectTransform Begin(bool cameraVisible = false)
         {
+            if (_scanFrame != null)
+            {
+                _scanFrame.gameObject.SetActive(false);
+                UnityEngine.Object.Destroy(_scanFrame.gameObject);
+                _scanFrame = null;
+            }
             if (_page != null)
             {
                 _page.SetActive(false);
@@ -149,6 +164,35 @@ namespace SeongbukAR
             layout.padding.top = 12;
             layout.padding.bottom = 18;
             return page;
+        }
+
+        internal void ShowScanFrame()
+        {
+            // Canvas center is the capture center. A scroll card or the safe
+            // area can have a different center, especially on an iPad.
+            _scanFrame = NewRect("Camera Capture Frame", _safe.parent);
+            _scanFrame.anchorMin = _scanFrame.anchorMax = new Vector2(0.5f, 0.5f);
+            _scanFrame.anchoredPosition = Vector2.zero;
+            foreach (var corner in new[] { Vector2.zero, Vector2.right, Vector2.up, Vector2.one })
+            {
+                ScanFrameLine(corner, new Vector2(28, 2));
+                ScanFrameLine(corner, new Vector2(2, 28));
+            }
+            UpdateSafeArea();
+        }
+
+        void ScanFrameLine(Vector2 corner, Vector2 size)
+        {
+            var line = NewRect("Frame Corner", _scanFrame);
+            line.anchorMin = line.anchorMax = corner;
+            line.pivot = corner;
+            line.sizeDelta = size;
+            var image = line.gameObject.AddComponent<Image>();
+            image.color = Color.white;
+            image.raycastTarget = false;
+            var shadow = line.gameObject.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0, 0, 0, 0.6f);
+            shadow.effectDistance = new Vector2(1, -1);
         }
 
         internal Text Label(Transform parent, string value, int size = 16, bool bold = false,
