@@ -439,7 +439,7 @@ namespace SeongbukAR
                 _ui.Label(parent, "책상이나 바닥을 비춘 뒤 안내판을 놓을 수 있습니다.", 13, false, GuideUi.Muted);
             }
             if (!string.IsNullOrEmpty(_notice))
-                _ui.Label(parent, _notice, 14, true, GuideUi.Orange);
+                _ui.Label(parent, _notice, 14, true, GuideUi.Notice);
             var sources = _ui.Card(parent, GuideUi.Paper, 0, 6);
             _ui.Divider(sources);
             _ui.Label(sources, "참고 자료", 14, true);

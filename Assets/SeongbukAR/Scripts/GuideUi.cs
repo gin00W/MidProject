@@ -12,13 +12,13 @@ namespace SeongbukAR
     // Layout sizes are logical pixels; the CanvasScaler handles device density.
     internal sealed class GuideUi
     {
-        internal static readonly Color Ink = Hex("252A30");
-        internal static readonly Color Muted = Hex("626A73");
-        internal static readonly Color Paper = Hex("F8F9FA");
-        internal static readonly Color Soft = Hex("EDF1F5");
-        internal static readonly Color Line = Hex("DEE3E9");
-        internal static readonly Color Accent = Hex("3E58B5");
-        internal static readonly Color Orange = Hex("925629");
+        internal static readonly Color Ink = Hex("242424");
+        internal static readonly Color Muted = Hex("666666");
+        internal static readonly Color Paper = Hex("FAFAFA");
+        internal static readonly Color Soft = Hex("F0F0F0");
+        internal static readonly Color Line = Hex("DDDDDD");
+        internal static readonly Color Accent = Ink;
+        internal static readonly Color Notice = Hex("444444");
 
         internal readonly Font Regular;
         internal readonly Font Semibold;
@@ -286,9 +286,9 @@ namespace SeongbukAR
             button.targetGraphic = image;
             var colors = button.colors;
             colors.normalColor = Color.white;
-            colors.highlightedColor = Hex("F0F2F8");
-            colors.pressedColor = Hex("DCE1EF");
-            colors.disabledColor = Hex("BDC3CD");
+            colors.highlightedColor = Hex("F2F2F2");
+            colors.pressedColor = Hex("DEDEDE");
+            colors.disabledColor = Hex("C3C3C3");
             button.colors = colors;
             button.onClick.AddListener(() => action?.Invoke());
             return button;
