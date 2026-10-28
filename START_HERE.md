@@ -82,7 +82,7 @@ VS Code는 C# 코드 편집용으로 계속 사용할 수 있습니다. 맥북�
 9. iOS Build Profiles의 Scene List에서 `GuideAR.unity`가 첫 번째로 활성화되어 있는지 확인합니다. 첫 기기 테스트에서는 GuideAR만 체크해도 됩니다. 아이폰 시작 장면은 `GuidePreview`가 아닌 `GuideAR`입니다.
 
 새 스캐너와 공간 안내는 기존 AR 장면에서도 자동으로 연결됩니다. 이전 그림카드 추적과 캐릭터는 기본 흐름에서 비활성화됩니다.
-iOS 내보내기 후 처리기가 필요한 Apple 프레임워크와 해당 `.mm` 파일의 ARC 컴파일 옵션을 연결합니다.
+iOS 내보내기 후 처리기가 필요한 Apple 프레임워크와 해당 `.mm` 파일의 ARC·Objective-C 예외 처리 컴파일 옵션을 연결합니다.
 
 ## 4. Xcode에서 아이폰에 실행
 
@@ -93,6 +93,14 @@ iOS 내보내기 후 처리기가 필요한 Apple 프레임워크와 해당 `.mm
 5. 아이폰을 연결하고 컴퓨터 신뢰·개발자 모드 등 Xcode의 안내를 완료합니다.
 6. 실행 대상을 실제 아이폰으로 선택하고 **Run**을 누릅니다.
 7. 아이폰에서 카메라 사용을 허용합니다.
+
+### 기존 Xcode 프로젝트의 `Cannot use '@try'` 오류
+
+`SeongbukVision.mm`에서 `Cannot use '@try' with Objective-C exceptions disabled`가 나오면, 스캔 플러그인이 사용하는 예외 처리와 Xcode 컴파일 옵션이 맞지 않는 상태입니다.
+
+- 이미 내보낸 프로젝트에서는 Xcode의 **TARGETS → UnityFramework → Build Settings**에서 **All**을 선택하고 `Enable Objective-C Exceptions`를 검색해 **Yes**로 설정합니다. 상위 행에서 전체 빌드 구성을 적용한 뒤 다시 Run합니다. Apple 계정·Team을 다시 설정할 필요는 없습니다.
+- 이후 Unity에서 새로 내보내는 프로젝트는 `ScanIOSBuildPostprocessor.cs`가 `SeongbukVision.mm`에 `-fobjc-exceptions`를 적용합니다. 전역 설정을 바꾸지 않고 플러그인 파일의 예외 처리만 활성화합니다.
+- 이 수정은 컴파일 옵션 누락에 대한 대응입니다. 실제 Xcode 재빌드 성공과 아이폰 실행은 기기에서 확인해야 합니다.
 
 ## 5. 실제 쓰레기를 스캔하는 흐름
 

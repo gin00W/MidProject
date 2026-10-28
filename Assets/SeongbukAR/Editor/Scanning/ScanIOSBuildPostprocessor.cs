@@ -29,8 +29,11 @@ namespace SeongbukAR.Editor
                 if (string.IsNullOrEmpty(fileGuid)) fileGuid = project.FindFileGuidByProjectPath(relative);
                 if (string.IsNullOrEmpty(fileGuid)) continue;
                 var flags = project.GetCompileFlagsForFile(frameworkTarget, fileGuid) ?? new List<string>();
-                flags.RemoveAll(flag => flag == "-fno-objc-arc");
+                flags.RemoveAll(flag => flag == "-fno-objc-arc" || flag == "-fno-objc-exceptions");
                 if (!flags.Contains("-fobjc-arc")) flags.Add("-fobjc-arc");
+                // Unity can disable Objective-C exceptions for UnityFramework.
+                // This plug-in's @try/@catch/@finally needs them for this file.
+                if (!flags.Contains("-fobjc-exceptions")) flags.Add("-fobjc-exceptions");
                 project.SetCompileFlagsForFile(frameworkTarget, fileGuid, flags);
                 nativeSourceFound = true;
             }

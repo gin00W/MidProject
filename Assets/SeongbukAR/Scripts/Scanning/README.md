@@ -31,7 +31,12 @@ bool started = scanner.RequestScan();
   values. `ScanPayloadRules` validates that envelope before the UI receives it.
 
 The iOS build postprocessor links Vision, ImageIO and CoreGraphics frameworks to
-UnityFramework and enables ARC for this native plug-in file. ARKit, camera permission text, rear camera configuration and an
+UnityFramework and enables ARC and Objective-C exceptions for this native plug-in file.
+The latter is required by its `@try`/`@catch`/`@finally` error-handling code, even if
+Unity disables Objective-C exceptions for the rest of UnityFramework.
+For an already exported project that reports `Cannot use '@try' with Objective-C exceptions disabled`,
+set **UnityFramework > Build Settings > Enable Objective-C Exceptions** to **Yes** and rebuild.
+ARKit, camera permission text, rear camera configuration and an
 active AR session still need to be configured in the scene/project.
 
 ## Accuracy and verification boundaries
