@@ -12,12 +12,13 @@ namespace SeongbukAR
     // Layout sizes are logical pixels; the CanvasScaler handles device density.
     internal sealed class GuideUi
     {
-        internal static readonly Color Ink = Hex("183E35");
-        internal static readonly Color Muted = Hex("5A6B62");
-        internal static readonly Color Paper = Hex("F6F7F3");
-        internal static readonly Color Soft = Hex("E9F0E8");
-        internal static readonly Color Line = Hex("DDE5DC");
-        internal static readonly Color Orange = Hex("A85A30");
+        internal static readonly Color Ink = Hex("252A30");
+        internal static readonly Color Muted = Hex("626A73");
+        internal static readonly Color Paper = Hex("F8F9FA");
+        internal static readonly Color Soft = Hex("EDF1F5");
+        internal static readonly Color Line = Hex("DEE3E9");
+        internal static readonly Color Accent = Hex("3E58B5");
+        internal static readonly Color Orange = Hex("925629");
 
         internal readonly Font Regular;
         internal readonly Font Semibold;
@@ -29,8 +30,8 @@ namespace SeongbukAR
 
         internal GuideUi(Transform parent)
         {
-            Regular = Resources.Load<Font>("Fonts/Pretendard-Regular");
-            Semibold = Resources.Load<Font>("Fonts/Pretendard-SemiBold");
+            Regular = Resources.Load<Font>("Fonts/SUIT-Regular");
+            Semibold = Resources.Load<Font>("Fonts/SUIT-SemiBold");
             if (Regular == null) Regular = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (Semibold == null) Semibold = Regular;
             var root = new GameObject("Guide Interface", typeof(RectTransform), typeof(Canvas),
@@ -92,8 +93,8 @@ namespace SeongbukAR
             var page = NewRect("Page", _safe);
             Stretch(page);
             _page = page.gameObject;
-            var layout = Column(page, 14, 22);
-            layout.padding.top = 16;
+            var layout = Column(page, 14, 24);
+            layout.padding.top = 12;
             layout.padding.bottom = 18;
             return page;
         }
@@ -110,7 +111,8 @@ namespace SeongbukAR
             text.alignment = alignment;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Overflow;
-            text.lineSpacing = 1.12f;
+            text.lineSpacing = 1.18f;
+            text.fontStyle = FontStyle.Normal;
             text.supportRichText = false;
             text.raycastTarget = false;
             return text;
@@ -145,14 +147,8 @@ namespace SeongbukAR
             var image = rect.gameObject.AddComponent<Image>();
             image.sprite = Rounded;
             image.type = Image.Type.Sliced;
-            image.color = fill ?? (primary ? Ink : Color.white);
-            var button = rect.gameObject.AddComponent<Button>();
-            var colors = button.colors;
-            colors.highlightedColor = new Color(0.94f, 0.97f, 0.95f);
-            colors.pressedColor = new Color(0.80f, 0.87f, 0.82f);
-            colors.disabledColor = new Color(0.72f, 0.76f, 0.73f);
-            button.colors = colors;
-            button.onClick.AddListener(() => action?.Invoke());
+            image.color = fill ?? (primary ? Accent : Soft);
+            var button = MakeButton(rect, image, action);
             Size(rect, height: height, flexibleWidth: 1);
             var text = Label(rect, label, textSize, true,
                 primary ? Color.white : Ink, TextAnchor.MiddleCenter);
@@ -162,8 +158,140 @@ namespace SeongbukAR
 
         internal Button Choice(Transform parent, string label, Action action)
         {
-            float lines = Mathf.Clamp(Mathf.Ceil(label.Length / 19f), 1, 4);
-            return Button(parent, label, action, false, Mathf.Max(56, lines * 21 + 24));
+            return ListButton(parent, label, null, action);
+        }
+
+        // A row grows with its actual wrapped text. This keeps long material
+        // choices readable in narrow windows without guessing character counts.
+        internal Button ListButton(Transform parent, string label, string detail, Action action)
+        {
+            var rect = NewRect("List Row " + label, parent);
+            var image = rect.gameObject.AddComponent<Image>();
+            image.color = Color.white;
+            var button = MakeButton(rect, image, action);
+            var layout = Column(rect, 5, 0);
+            layout.padding = new RectOffset(16, 38, 16, 16);
+            Size(rect, flexibleWidth: 1, minHeight: 56);
+            Label(rect, label, 16, false, Ink);
+            if (!string.IsNullOrWhiteSpace(detail))
+                Label(rect, detail, 13, false, Muted);
+
+            var arrow = NewRect("Chevron", rect);
+            arrow.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
+            arrow.anchorMin = new Vector2(1, 0);
+            arrow.anchorMax = Vector2.one;
+            arrow.pivot = new Vector2(1, 0.5f);
+            arrow.offsetMin = new Vector2(-32, 0);
+            arrow.offsetMax = new Vector2(-12, 0);
+            Chevron(arrow);
+            var rule = NewRect("Row Divider", rect);
+            rule.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
+            rule.anchorMin = rule.anchorMax = Vector2.zero;
+            rule.anchorMax = Vector2.right;
+            rule.pivot = new Vector2(0.5f, 0);
+            rule.sizeDelta = new Vector2(0, 1);
+            rule.anchoredPosition = Vector2.zero;
+            var line = rule.gameObject.AddComponent<Image>();
+            line.color = Line;
+            line.raycastTarget = false;
+            return button;
+        }
+
+        internal Button TextButton(Transform parent, string label, Action action,
+            float height = 44, int textSize = 14)
+        {
+            var button = Button(parent, label, action, false, height, textSize, Color.clear);
+            var text = button.GetComponentInChildren<Text>();
+            text.font = Regular;
+            text.color = Accent;
+            // Tint the lettering so a transparent text control still responds
+            // visibly to touch, keyboard focus, and disabled state.
+            button.targetGraphic = text;
+            var colors = button.colors;
+            colors.highlightedColor = new Color(0.86f, 0.86f, 0.86f);
+            colors.pressedColor = new Color(0.65f, 0.65f, 0.65f);
+            colors.disabledColor = new Color(0.6f, 0.6f, 0.6f, 0.5f);
+            button.colors = colors;
+            return button;
+        }
+
+        internal void Divider(Transform parent)
+        {
+            var rect = NewRect("Divider", parent);
+            var image = rect.gameObject.AddComponent<Image>();
+            image.color = Line;
+            image.raycastTarget = false;
+            Size(rect, height: 1);
+        }
+
+        // Simple line geometry serves the same role as an icon in a class
+        // project. There is no generated image or decorative character here.
+        internal RectTransform ScanMark(Transform parent, float size = 116)
+        {
+            var holder = NewRect("Scan Mark", parent);
+            Size(holder, height: size);
+            var mark = NewRect("Outline", holder);
+            mark.anchorMin = mark.anchorMax = new Vector2(0.5f, 0.5f);
+            mark.sizeDelta = new Vector2(116, 116);
+            mark.localScale = Vector3.one * (size / 116);
+            Stroke(mark, 10, 10, 18, 2, Accent);
+            Stroke(mark, 10, 10, 2, 18, Accent);
+            Stroke(mark, 88, 10, 18, 2, Accent);
+            Stroke(mark, 104, 10, 2, 18, Accent);
+            Stroke(mark, 10, 104, 18, 2, Accent);
+            Stroke(mark, 10, 88, 2, 18, Accent);
+            Stroke(mark, 88, 104, 18, 2, Accent);
+            Stroke(mark, 104, 88, 2, 18, Accent);
+            Stroke(mark, 39, 36, 38, 2, Ink);
+            Stroke(mark, 39, 40, 2, 39, Ink);
+            Stroke(mark, 75, 40, 2, 39, Ink);
+            Stroke(mark, 39, 79, 38, 2, Ink);
+            Stroke(mark, 51, 32, 14, 2, Muted);
+            Stroke(mark, 45, 47, 2, 25, Line);
+            return holder;
+        }
+
+        static void Stroke(RectTransform parent, float left, float top, float width, float height, Color color)
+        {
+            var rect = NewRect("Line", parent);
+            rect.anchorMin = rect.anchorMax = new Vector2(0, 1);
+            rect.pivot = new Vector2(0, 1);
+            rect.sizeDelta = new Vector2(width, height);
+            rect.anchoredPosition = new Vector2(left, -top);
+            var image = rect.gameObject.AddComponent<Image>();
+            image.color = color;
+            image.raycastTarget = false;
+        }
+
+        // Navigation uses geometry because SUIT deliberately has a smaller
+        // symbol repertoire than its Korean/Latin text coverage.
+        internal void Chevron(Transform parent, bool back = false)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                var rect = NewRect("Chevron Line", parent);
+                rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+                rect.sizeDelta = new Vector2(8, 1.6f);
+                rect.anchoredPosition = new Vector2(back ? 0.7f : -0.7f, i == 0 ? 2.5f : -2.5f);
+                rect.localRotation = Quaternion.Euler(0, 0, (i == 0 ? -45 : 45) * (back ? -1 : 1));
+                var image = rect.gameObject.AddComponent<Image>();
+                image.color = Muted;
+                image.raycastTarget = false;
+            }
+        }
+
+        static Button MakeButton(RectTransform rect, Image image, Action action)
+        {
+            var button = rect.gameObject.AddComponent<Button>();
+            button.targetGraphic = image;
+            var colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = Hex("F0F2F8");
+            colors.pressedColor = Hex("DCE1EF");
+            colors.disabledColor = Hex("BDC3CD");
+            button.colors = colors;
+            button.onClick.AddListener(() => action?.Invoke());
+            return button;
         }
 
         internal InputField SearchField(Transform parent, string value, Action<string> onChange)
@@ -172,13 +300,13 @@ namespace SeongbukAR
             var image = rect.gameObject.AddComponent<Image>();
             image.sprite = Rounded;
             image.type = Image.Type.Sliced;
-            image.color = Color.white;
-            Size(rect, height: 54);
+            image.color = Soft;
+            Size(rect, height: 52);
             var input = rect.gameObject.AddComponent<InputField>();
             input.targetGraphic = image;
             input.characterLimit = 60;
             input.lineType = InputField.LineType.SingleLine;
-            var placeholder = Label(rect, "엽떡 용기, 캔, 단추…", 16, false, Muted, TextAnchor.MiddleLeft);
+            var placeholder = Label(rect, "물건 이름 검색", 16, false, Muted, TextAnchor.MiddleLeft);
             Stretch(placeholder.rectTransform, 16, 8);
             var text = Label(rect, "", 16, false, Ink, TextAnchor.MiddleLeft);
             Stretch(text.rectTransform, 16, 8);
@@ -204,7 +332,7 @@ namespace SeongbukAR
             content.anchorMax = new Vector2(1, 1);
             content.pivot = new Vector2(0.5f, 1);
             content.offsetMin = content.offsetMax = Vector2.zero;
-            Column(content, 12, 0).padding.bottom = 12;
+            Column(content, 10, 0).padding.bottom = 12;
             content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             var scroll = rect.gameObject.AddComponent<ScrollRect>();
             scroll.viewport = viewport;
@@ -233,15 +361,16 @@ namespace SeongbukAR
         internal void Header(Transform parent, string title, Action back = null)
         {
             var row = Row(parent);
-            Size(row, height: 42);
+            Size(row, height: 44);
             if (back != null)
             {
-                var button = Button(row, "‹", back, false, 42, 27, Soft);
-                Size(button.transform, width: 42, height: 42, flexibleWidth: 0);
+                var button = Button(row, "", back, false, 44, 18, Color.clear);
+                Size(button.transform, width: 44, height: 44, flexibleWidth: 0);
+                Chevron(button.transform, true);
             }
-            var label = Label(row, title, back == null ? 23 : 19, true, Ink, TextAnchor.MiddleLeft);
+            var label = Label(row, title, back == null ? 22 : 18, true, Ink, TextAnchor.MiddleLeft);
             Size(label.transform, flexibleWidth: 1);
-            var region = Label(row, "성북구", 13, true, Muted, TextAnchor.MiddleRight);
+            var region = Label(row, "성북구", 12, false, Muted, TextAnchor.MiddleRight);
             Size(region.transform, width: 48);
         }
 
@@ -303,8 +432,8 @@ namespace SeongbukAR
             get
             {
                 if (_rounded != null) return _rounded;
-                const int size = 96;
-                const float radius = 23;
+                const int size = 32;
+                const float radius = 6;
                 var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
                 var pixels = new Color[size * size];
                 for (int y = 0; y < size; y++)
@@ -320,7 +449,7 @@ namespace SeongbukAR
                 texture.wrapMode = TextureWrapMode.Clamp;
                 _rounded = Sprite.Create(texture, new Rect(0, 0, size, size),
                     new Vector2(0.5f, 0.5f), 100, 0, SpriteMeshType.FullRect,
-                    new Vector4(24, 24, 24, 24));
+                    new Vector4(7, 7, 7, 7));
                 return _rounded;
             }
         }

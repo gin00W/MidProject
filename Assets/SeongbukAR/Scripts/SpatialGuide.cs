@@ -18,11 +18,6 @@ namespace SeongbukAR
         const float MetresPerCanvasUnit = 0.00065f;
         const float Padding = 24f;
 
-        static readonly Color Teal = new Color32(25, 70, 60, 255);
-        static readonly Color Ink = new Color32(32, 49, 44, 255);
-        static readonly Color Muted = new Color32(99, 117, 109, 255);
-        static readonly Color Rule = new Color32(222, 233, 225, 255);
-
         readonly List<ARRaycastHit> _hits = new List<ARRaycastHit>();
         Camera _camera;
         Font _regular;
@@ -73,17 +68,17 @@ namespace SeongbukAR
             Clear();
             if (result == null || string.IsNullOrWhiteSpace(result.destination))
             {
-                message = "먼저 물건의 배출 방법을 확인해 주세요.";
+                message = "물건의 배출 방법을 먼저 확인하세요.";
                 return false;
             }
             if (!IsDeviceRuntime)
             {
-                message = "공간 안내는 AR을 지원하는 아이폰에서 사용할 수 있어요.";
+                message = "공간 안내는 AR 지원 아이폰에서 사용할 수 있습니다.";
                 return false;
             }
             if (!IsAvailable)
             {
-                message = "카메라로 주변을 천천히 비춰 AR 공간 인식을 준비해 주세요.";
+                message = "주변을 천천히 비춰 공간 인식을 준비하세요.";
                 return false;
             }
 
@@ -91,13 +86,13 @@ namespace SeongbukAR
             Vector2 screenCentre = _camera.pixelRect.center;
             if (!_raycasts.Raycast(screenCentre, _hits, TrackableType.PlaneWithinPolygon) || _hits.Count == 0)
             {
-                message = "카메라를 책상이나 바닥으로 천천히 움직인 뒤 다시 눌러 주세요.";
+                message = "책상이나 바닥을 천천히 비춘 뒤 다시 눌러 주세요.";
                 return false;
             }
 
             CreatePanel(result, itemName, _hits[0].pose.position);
             FaceCamera();
-            message = "선택한 표면 위에 배출 안내를 놓았어요. 주변으로 움직이며 확인해 보세요.";
+            message = "표면에 안내를 놓았습니다. 휴대폰을 움직여 확인하세요.";
             return true;
         }
 
@@ -155,18 +150,13 @@ namespace SeongbukAR
             var background = panelObject.GetComponent<Image>();
             background.color = Color.white;
             background.raycastTarget = false;
-            var shadow = panelObject.AddComponent<Shadow>();
-            shadow.effectColor = new Color(0.04f, 0.13f, 0.10f, 0.16f);
-            shadow.effectDistance = new Vector2(0, -6);
-
-            AddRule("Accent", 0, 5, Teal, 0);
             float top = Padding;
             top += AddText("Item", string.IsNullOrWhiteSpace(itemName) ? "배출 방법" : itemName,
-                top, 17, _regular, Muted, 22);
+                top, 17, _regular, GuideUi.Muted, 22);
             top += 8;
-            top += AddText("Destination", result.destination, top, 25, _semibold, Teal, 34);
+            top += AddText("Destination", result.destination, top, 25, _semibold, GuideUi.Accent, 34);
             top += 16;
-            AddRule("Divider", top, 1, Rule, Padding);
+            AddRule("Divider", top, 1, GuideUi.Line, Padding);
             top += 17;
 
             int shown = 0;
@@ -174,18 +164,20 @@ namespace SeongbukAR
             {
                 if (string.IsNullOrWhiteSpace(step)) continue;
                 shown++;
-                top += AddText("Step " + shown, shown + ".  " + step, top, 19, _regular, Ink, 25);
+                top += AddText("Step " + shown, shown + ".  " + step, top, 19, _regular, GuideUi.Ink, 25);
                 top += 12;
                 if (shown == 3) break;
             }
             if (shown == 0)
-                top += AddText("Full Guide", "자세한 준비 순서는 화면의 안내를 확인해 주세요.",
-                    top, 19, _regular, Ink, 25) + 12;
+                top += AddText("Full Guide", "준비 순서는 배출 방법 화면에서 확인하세요.",
+                    top, 19, _regular, GuideUi.Ink, 25) + 12;
 
             string footer = result.steps != null && result.steps.Length > 3
-                ? "전체 단계는 화면의 안내에서 확인해 주세요."
-                : "선택한 책상·바닥 위에 놓은 안내";
-            top += AddText("Context", footer, top + 3, 13, _regular, Muted, 18) + 3;
+                ? "전체 단계는 배출 방법 화면에서 확인하세요."
+                : "현재 공간에 놓은 배출 안내";
+            AddRule("Footer Divider", top, 1, GuideUi.Line, Padding);
+            top += 13;
+            top += AddText("Context", footer, top, 13, _regular, GuideUi.Muted, 18);
             float panelHeight = Mathf.Max(190, top + Padding);
             _panel.sizeDelta = new Vector2(PanelWidth, panelHeight);
             _panel.localPosition = Vector3.up * (panelHeight * MetresPerCanvasUnit * 0.5f + 0.025f);

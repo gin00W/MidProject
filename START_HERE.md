@@ -6,7 +6,8 @@ Unity **6000.3.22f1**, 맥북 개발, 실제 아이폰 실행을 기준으로 �
 ## 이번 버전에서 바뀐 것
 
 - 그림카드 중심에서 **실물 스캔 → 후보 확인 → 상태 질문 → 배출 안내**로 변경했습니다.
-- 나눔고딕/IMGUI 화면을 **프리텐다드 Regular·Semibold와 uGUI** 화면으로 교체했습니다.
+- 본문용 고딕 글꼴 **SUIT Regular·SemiBold**를 적용하고, uGUI 화면의 색상·장식·문구를 정리했습니다.
+- 흰 배경·회색 본문·남색 강조를 사용하고, 큰 둥근 카드 대신 선으로 구분한 목록과 간단한 선 아이콘을 사용합니다.
 - 품목 목록을 **6개에서 59개**로 늘렸습니다. 캔, 단추, 페트병 뚜껑, 영수증, 의류, 전지, 조명, 배달 용기 등을 검색할 수 있습니다.
 - 실제 아이폰 카메라 사진을 Apple Vision이 기기 안에서 분류합니다. 사진을 서버로 전송하거나 API 키를 입력하지 않습니다.
 - 인식 후보를 확인한 뒤 재질·남은 내용물·오염 제거 가능 여부를 질문합니다.
@@ -50,6 +51,8 @@ Unity 상단 **Seongbuk AR → 2. Check Catalog**는 실제 Unity JsonUtility로
 
 ## 3. iPhone 빌드 준비
 
+VS Code는 C# 코드 편집용으로 계속 사용할 수 있습니다. 맥북에서 직접 아이폰 앱을 빌드·서명·설치할 때에는 Xcode의 도구가 필요합니다. 이 프로젝트는 Unity가 Xcode 프로젝트를 만든 뒤 Xcode에서 개인 아이폰으로 실행하는 흐름을 사용합니다.
+
 1. Unity Hub의 Installs에서 **6000.3.22f1 → Add modules → iOS Build Support**를 설치합니다.
 2. 맥북에 연결할 아이폰의 iOS를 지원하는 Xcode를 설치하고 한 번 실행해 초기 설정을 마칩니다.
 3. Unity **File → Build Profiles → iOS**로 플랫폼을 전환합니다.
@@ -62,7 +65,7 @@ Unity 상단 **Seongbuk AR → 2. Check Catalog**는 실제 Unity JsonUtility로
    - Scripting Backend: IL2CPP
    - Target minimum iOS Version: 현재 ARKit 패키지의 검증 조건과 실제 기기 버전에 맞춤. 사진 분류는 iOS 13 이상에서 지원합니다.
 8. **Seongbuk AR → 3. Open iPhone Scan Scene**을 눌러 `GuideAR`를 엽니다.
-9. iOS Build Profiles의 Scene List에 `GuideAR.unity`가 활성화되어 있는지 확인합니다. 아이폰 시작 장면은 `GuidePreview`가 아닌 `GuideAR`입니다.
+9. iOS Build Profiles의 Scene List에서 `GuideAR.unity`가 첫 번째로 활성화되어 있는지 확인합니다. 첫 기기 테스트에서는 GuideAR만 체크해도 됩니다. 아이폰 시작 장면은 `GuidePreview`가 아닌 `GuideAR`입니다.
 
 새 스캐너와 공간 안내는 기존 AR 장면에서도 자동으로 연결됩니다. 이전 그림카드 추적과 캐릭터는 기본 흐름에서 비활성화됩니다.
 iOS 내보내기 후 처리기가 필요한 Apple 프레임워크와 해당 `.mm` 파일의 ARC 컴파일 옵션을 연결합니다.
@@ -81,8 +84,8 @@ iOS 내보내기 후 처리기가 필요한 Apple 프레임워크와 해당 `.mm
 
 1. 밝은 곳에서 물건 **하나**를 카메라 가운데 가까이 놓습니다.
 2. **쓰레기 스캔하기**를 누릅니다. 화면 중앙을 자른 사진을 기기 안에서 분석합니다.
-3. 촬영된 사진과 함께 **이 물건이 맞나요?** 후보가 표시됩니다.
-4. 실제 물건과 일치하는 항목을 선택합니다. 잘못된 후보라면 **다른 물건이에요 · 직접 찾기**를 누릅니다.
+3. 촬영된 사진과 함께 **어떤 물건인가요?** 후보가 표시됩니다.
+4. 실제 물건과 일치하는 항목을 선택합니다. 잘못된 후보라면 **맞는 항목 없음 · 이름으로 찾기**를 누릅니다.
 5. 캔이면 내용물을 비우고 헹구는 등의 캔류 안내로, 배달 용기면 재질·음식물·기름 제거 가능 여부 질문으로 이어집니다.
 6. 같은 물건을 다시 스캔하거나 처음부터 확인하면 이전 답변을 새로 받습니다.
 
@@ -104,7 +107,7 @@ iOS 내보내기 후 처리기가 필요한 Apple 프레임워크와 해당 `.mm
 | 파일 | 역할 |
 |---|---|
 | `Assets/SeongbukAR/Scripts/GuideApp.cs` | 스캔·후보 확인·검색·질문·결과 화면 전환 |
-| `Assets/SeongbukAR/Scripts/GuideUi.cs` | 프리텐다드·uGUI 레이아웃과 안전 영역 |
+| `Assets/SeongbukAR/Scripts/GuideUi.cs` | SUIT·uGUI 레이아웃과 안전 영역 |
 | `Assets/SeongbukAR/Scripts/WasteCatalog.cs` | 품목 구조와 질문 검증 |
 | `Assets/SeongbukAR/Scripts/WasteRecognition.cs` | 실제 분류 라벨을 확인 후보에 보수적으로 연결 |
 | `Assets/SeongbukAR/Scripts/Scanning/` | 카메라 캡처, 비동기 요청, 방향 변환, 네이티브 응답 |
@@ -113,7 +116,9 @@ iOS 내보내기 후 처리기가 필요한 Apple 프레임워크와 해당 `.mm
 | `Assets/SeongbukAR/Resources/Data/seongbuk-demo.json` | 59품목·조건별 안내·출처 |
 | `Docs/catalog-sources.md` | 근거 범위와 추가 확인 사항 |
 
-글꼴은 [Pretendard](https://github.com/orioncactus/pretendard)를 사용하며 라이선스를 폰트 폴더에 함께 포함했습니다.
+현재 화면의 글꼴은 [SUIT](https://github.com/sun-typeface/SUIT)의 공식 v2.0.5 배포 중 정적 OTF Regular·SemiBold를 사용합니다.
+앱과 함께 배포할 수 있는 SIL Open Font License 1.1의 전체 문구를 `Assets/SeongbukAR/Resources/Fonts/SUIT-LICENSE.txt`에 포함했습니다.
+글꼴 출처와 파일 정보는 같은 폴더의 `SUIT-SOURCE.md`에서 확인할 수 있습니다.
 
 ## 검증
 

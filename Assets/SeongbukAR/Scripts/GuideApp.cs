@@ -183,8 +183,8 @@ namespace SeongbukAR
         {
             if (!CanScan)
             {
-                ShowMessage("스캔은 아이폰에서 사용할 수 있어요",
-                    "아이폰에 설치한 앱에서 카메라로 물건을 비춰 주세요. 지금은 이름으로 찾아보고 배출 안내를 확인할 수 있어요.");
+                ShowMessage("아이폰에서 스캔하세요",
+                    "실물 스캔은 아이폰에 앱을 설치한 뒤 사용할 수 있습니다. 맥북에서는 이름 검색과 배출 안내를 확인하세요.");
                 return;
             }
             if (_scanner.IsBusy) return;
@@ -206,8 +206,8 @@ namespace SeongbukAR
             _acceptScanResult = false;
             if (!response.success)
             {
-                ShowMessage("물건을 알아보지 못했어요",
-                    "물건 하나가 잘 보이도록 가까이 비춰보세요. 이름으로 직접 찾을 수도 있어요.");
+                ShowMessage("사진을 확인할 수 없습니다",
+                    "밝은 곳에서 물건 하나를 가까이 비춘 뒤 다시 촬영하세요. 이름으로 직접 찾을 수도 있습니다.");
                 return;
             }
             var signals = response.labels.Select(label => new RecognitionSignal
@@ -215,8 +215,8 @@ namespace SeongbukAR
             _candidates = WasteRecognition.Match(_catalog, signals);
             if (_candidates.Length == 0)
             {
-                ShowMessage("물건을 확실히 알아보지 못했어요",
-                    "다른 각도에서 다시 스캔하거나 이름으로 찾아주세요. 작은 물건은 가까이 비추면 도움이 돼요.");
+                ShowMessage("일치하는 물건을 찾지 못했습니다",
+                    "물건 하나를 가운데 놓고 다른 각도에서 다시 촬영하세요. 작은 물건이나 재질 구분이 어려운 물건은 이름으로 찾아보세요.");
                 return;
             }
             Navigate(Page.Candidates);
@@ -236,7 +236,7 @@ namespace SeongbukAR
             {
                 var errorPage = _ui.Begin();
                 _ui.Header(errorPage, "어디다 버려?");
-                _ui.Label(errorPage, "품목 목록을 불러오지 못했어요", 25, true);
+                _ui.Label(errorPage, "품목 목록을 불러올 수 없습니다", 24, true);
                 _ui.Label(errorPage, _error, 15, false, GuideUi.Muted);
                 return;
             }
@@ -257,24 +257,36 @@ namespace SeongbukAR
             var page = _ui.Begin(CanScan);
             HeaderCard(page, "어디다 버려?");
             var content = _ui.Scroll(page);
-            var frame = _ui.Card(content, CanScan ? new Color(0.06f, 0.15f, 0.11f, 0.08f) : GuideUi.Soft, 22, 10);
-            float heroHeight = Mathf.Clamp(Screen.height * 390f / Mathf.Max(1, Screen.width) * 0.32f, 180, 280);
-            GuideUi.Size(frame, height: heroHeight);
-            var title = _ui.Label(frame, CanScan ? "+" : "한 번 확인하고,\n제대로 버리기.",
-                CanScan ? 46 : 29, !CanScan, CanScan ? Color.white : GuideUi.Ink, TextAnchor.MiddleCenter);
-            GuideUi.Size(title.transform, flexibleHeight: 1);
-            var cameraCaption = CanScan ? _ui.Card(frame, GuideUi.Ink, 10, 0) : frame;
-            _ui.Label(cameraCaption, CanScan ? "물건 하나를 가운데에 놓아주세요" : "실물 카메라 스캔은 아이폰에서 사용할 수 있어요",
-                13, false, CanScan ? Color.white : GuideUi.Muted, TextAnchor.MiddleCenter);
-            var shortcuts = _ui.Card(content, Color.white, 14, 8);
-            _ui.Label(shortcuts, "이런 물건, 헷갈리죠?", 14, true);
-            ShortcutRow(shortcuts, new[] { "캔", "배달 용기", "단추" });
-            ShortcutRow(shortcuts, new[] { "페트병", "치킨 뼈", "옷" });
-            var footer = _ui.Card(content, GuideUi.Paper, 10, 0);
-            _ui.Label(footer, _catalog.Data.items.Length + "개 품목 · 출처와 배출 전 준비까지 함께 확인해요",
-                13, false, GuideUi.Muted, TextAnchor.MiddleCenter);
-            _ui.Button(page, "쓰레기 스캔하기", StartScan, true, 56);
-            _ui.Button(page, "이름으로 직접 찾기", () => ShowSearch(""), false, 48);
+            var intro = _ui.Card(content, GuideUi.Paper, 0, 7);
+            _ui.Label(intro, "분리배출 안내", 13, false, GuideUi.Muted);
+            _ui.Label(intro, "무엇을 버릴까요?", 26, true);
+            _ui.Label(intro, CanScan ? "물건 하나를 가운데 놓고 스캔하세요." : "물건 이름으로 배출 방법을 찾아보세요.",
+                15, false, GuideUi.Muted);
+
+            var frame = _ui.Card(content, CanScan ? Color.clear : GuideUi.Soft, 16, 8);
+            GuideUi.Size(frame, height: 174);
+            if (CanScan)
+            {
+                var target = _ui.Label(frame, "+", 30, false, Color.white, TextAnchor.MiddleCenter);
+                GuideUi.Size(target.transform, flexibleHeight: 1);
+            }
+            else
+            {
+                var mark = _ui.ScanMark(frame, 100);
+                GuideUi.Size(mark, flexibleHeight: 1);
+                _ui.Label(frame, "카메라 스캔은 아이폰에서 사용할 수 있습니다.", 13, false,
+                    GuideUi.Muted, TextAnchor.MiddleCenter);
+            }
+
+            var shortcuts = _ui.Card(content, GuideUi.Paper, 0, 0);
+            _ui.Label(shortcuts, "자주 헷갈리는 물건", 14, true);
+            _ui.Divider(shortcuts);
+            _ui.ListButton(shortcuts, "배달 용기", "엽떡·마라탕 용기에 기름이 남았다면", () => ShowSearch("배달 용기"));
+            _ui.ListButton(shortcuts, "페트병", "몸통·뚜껑·라벨 배출 방법", () => ShowSearch("페트병"));
+            _ui.ListButton(shortcuts, "단추", "작은 생활용품의 재질 확인", () => ShowSearch("단추"));
+            var actions = _ui.Card(page, GuideUi.Paper, CanScan ? 12 : 0, 4);
+            _ui.Button(actions, "쓰레기 스캔하기", StartScan, true, 52);
+            _ui.TextButton(actions, "이름으로 직접 찾기", () => ShowSearch(""), 44, 15);
         }
 
         void HeaderCard(Transform parent, string title, Action back = null)
@@ -283,18 +295,11 @@ namespace SeongbukAR
             _ui.Header(card, title, back);
         }
 
-        void ShortcutRow(Transform parent, string[] labels)
-        {
-            var row = _ui.Row(parent, 7);
-            foreach (string label in labels)
-                _ui.Button(row, label, () => ShowSearch(label), false, 38, 14, GuideUi.Soft);
-        }
-
         void RenderSearch()
         {
             var page = _ui.Begin();
             _ui.Header(page, "물건 찾아보기", ShowHome);
-            _ui.Label(page, "무엇을 버리려고 하나요?", 25, true);
+            _ui.Label(page, "물건 이름을 입력하세요", 23, true);
             _ui.SearchField(page, _query, value => { _query = value; RenderSearchMatches(); });
             CategoryRow(page, new[] { "전체", "재활용", "음식물" });
             CategoryRow(page, new[] { "생활용품", "별도수거" });
@@ -306,8 +311,20 @@ namespace SeongbukAR
         {
             var row = _ui.Row(parent, 7);
             foreach (string category in categories)
-                _ui.Button(row, category, () => { _category = category; RenderSearch(); },
-                    _category == category, 34, 13, _category == category ? (Color?)null : GuideUi.Soft);
+            {
+                var button = _ui.TextButton(row, category, () => { _category = category; RenderSearch(); }, 44, 13);
+                button.GetComponentInChildren<Text>().color = _category == category ? GuideUi.Accent : GuideUi.Muted;
+                if (_category != category) continue;
+                var rule = GuideUi.NewRect("Selected Category", button.transform);
+                rule.anchorMin = new Vector2(0, 0);
+                rule.anchorMax = new Vector2(1, 0);
+                rule.pivot = new Vector2(0.5f, 0);
+                rule.sizeDelta = new Vector2(0, 2);
+                rule.anchoredPosition = Vector2.zero;
+                var image = rule.gameObject.AddComponent<Image>();
+                image.color = GuideUi.Accent;
+                image.raycastTarget = false;
+            }
         }
 
         void RenderSearchMatches()
@@ -318,14 +335,13 @@ namespace SeongbukAR
             _ui.Label(_searchResults, matches.Length + "개 품목", 13, false, GuideUi.Muted);
             foreach (var item in matches)
             {
-                var button = _ui.Choice(_searchResults, item.name + "  ›", () => SelectItem(item.id, true, false));
-                button.GetComponentInChildren<Text>().alignment = TextAnchor.MiddleLeft;
+                _ui.ListButton(_searchResults, item.name, null, () => SelectItem(item.id, true, false));
             }
             if (matches.Length == 0)
             {
                 var card = _ui.Card(_searchResults, GuideUi.Soft);
-                _ui.Label(card, "아직 이 이름으로는 찾지 못했어요", 18, true);
-                _ui.Label(card, "다른 이름이나 재질로 검색해 보세요. 공식 품목사전에서도 확인할 수 있어요.", 15, false, GuideUi.Muted);
+                _ui.Label(card, "검색 결과가 없습니다", 18, true);
+                _ui.Label(card, "다른 이름이나 재질로 검색하세요. 공식 품목사전에서도 찾아볼 수 있습니다.", 15, false, GuideUi.Muted);
                 _ui.Button(card, "공식 품목사전 열기", () => Application.OpenURL("https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do"));
             }
         }
@@ -345,14 +361,14 @@ namespace SeongbukAR
 
         void RenderScanning()
         {
-            var page = _ui.Begin(true);
+            var page = _ui.Begin();
             HeaderCard(page, "물건 스캔", ShowHome);
-            var card = _ui.Card(page, new Color(0.04f, 0.12f, 0.08f, 0.55f), 22, 16);
+            var card = _ui.Card(page, GuideUi.Paper, 18, 14);
             GuideUi.Size(card, flexibleHeight: 1, minHeight: 200);
             _ui.Photo(card, _scanner.LatestCapturedFrame, 210);
-            _ui.Label(card, "어떤 물건인지\n살펴보고 있어요", 26, true, Color.white);
-            _ui.Label(card, "잠시만 기다려 주세요", 15, false, Color.white);
-            _ui.Button(page, "취소", ShowHome);
+            _ui.Label(card, "사진 확인 중", 23, true);
+            _ui.Label(card, "잠시 기다려 주세요.", 15, false, GuideUi.Muted);
+            _ui.TextButton(page, "취소", ShowHome);
         }
 
         void RenderCandidates()
@@ -361,15 +377,15 @@ namespace SeongbukAR
             _ui.Header(page, "물건 확인", ShowHome);
             var content = _ui.Scroll(page);
             _ui.Photo(content, _scanner != null ? _scanner.LatestCapturedFrame : null, 175);
-            _ui.Label(content, "이 물건이 맞나요?", 26, true);
-            _ui.Label(content, "사진으로 찾은 후보예요. 실제 물건을 골라주세요.", 15, false, GuideUi.Muted);
+            _ui.Label(content, "어떤 물건인가요?", 24, true);
+            _ui.Label(content, "촬영한 물건과 같은 항목을 선택하세요.", 15, false, GuideUi.Muted);
             foreach (var candidate in _candidates)
             {
                 var selected = candidate.item;
-                _ui.Choice(content, selected.name + "  ›", () => SelectItem(selected.id, true, true));
+                _ui.Choice(content, selected.name, () => SelectItem(selected.id, true, true));
             }
-            _ui.Button(page, "다른 물건이에요 · 직접 찾기", () => ShowSearch(""), true);
-            _ui.Button(page, "다시 스캔하기", StartScan, false, 44);
+            _ui.Button(page, "맞는 항목 없음 · 이름으로 찾기", () => ShowSearch(""), false, 48, 15);
+            _ui.TextButton(page, "다시 스캔하기", StartScan);
         }
 
         void RenderGuide()
@@ -381,9 +397,9 @@ namespace SeongbukAR
             if (CurrentNode.IsResult) RenderResult(content);
             else
             {
-                _ui.Label(content, CurrentItem.name, 15, true, GuideUi.Muted);
-                _ui.Label(content, CurrentNode.prompt, 25, true);
-                _ui.Label(content, "같은 물건도 상태에 따라 배출 방법이 달라요.", 14, false, GuideUi.Muted);
+                _ui.Label(content, CurrentItem.name, 14, false, GuideUi.Muted);
+                _ui.Label(content, CurrentNode.prompt, 24, true);
+                _ui.Divider(content);
                 foreach (var choice in CurrentNode.choices)
                 {
                     var selected = choice;
@@ -391,56 +407,58 @@ namespace SeongbukAR
                 }
             }
             if (!CurrentNode.IsResult && _history.Count > 0)
-                _ui.Button(page, "이전 질문", BackFromGuide, false, 44);
+                _ui.TextButton(page, "이전 질문", BackFromGuide);
         }
 
         void RenderResult(Transform parent)
         {
             var result = CurrentNode.result;
-            var lead = _ui.Card(parent, GuideUi.Soft, 20, 9);
-            _ui.Label(lead, CurrentItem.name, 14, true, GuideUi.Muted);
-            _ui.Label(lead, result.destination, 27, true);
+            var lead = _ui.Card(parent, GuideUi.Paper, 0, 8);
+            _ui.Label(lead, CurrentItem.name, 14, false, GuideUi.Muted);
+            _ui.Label(lead, result.destination, 25, true, GuideUi.Accent);
             _ui.Label(lead, ScopeLabel(CurrentItem.sourceScope), 13, false, GuideUi.Muted);
-            _ui.Label(parent, "이렇게 준비해서 버려요", 20, true);
+            _ui.Divider(parent);
+            _ui.Label(parent, "배출 전 준비", 18, true);
             for (int i = 0; i < result.steps.Length; i++)
             {
                 var row = _ui.Row(parent, 12);
-                var number = _ui.Label(row, (i + 1).ToString("00"), 16, true, GuideUi.Orange);
-                GuideUi.Size(number.transform, width: 27);
+                var number = _ui.Label(row, (i + 1).ToString() + ".", 16, true, GuideUi.Muted);
+                GuideUi.Size(number.transform, width: 21);
                 var step = _ui.Label(row, result.steps[i], 17);
                 GuideUi.Size(step.transform, flexibleWidth: 1);
             }
             if (!string.IsNullOrWhiteSpace(result.explanation))
             {
-                var note = _ui.Card(parent, Color.white, 16, 8);
-                _ui.Label(note, "함께 알아두세요", 14, true);
+                var note = _ui.Card(parent, GuideUi.Soft, 14, 7);
+                _ui.Label(note, "참고", 13, true);
                 _ui.Label(note, result.explanation, 15, false, GuideUi.Muted);
             }
             if (CanScan && _spatial != null)
             {
                 _ui.Button(parent, "공간에 안내 놓기", BeginPlacement, true);
-                _ui.Label(parent, "책상·바닥을 천천히 비춘 뒤 눌러 주세요. 안내를 놓을 위치를 확인해요.", 13, false, GuideUi.Muted);
+                _ui.Label(parent, "책상이나 바닥을 비춘 뒤 안내판을 놓을 수 있습니다.", 13, false, GuideUi.Muted);
             }
             if (!string.IsNullOrEmpty(_notice))
                 _ui.Label(parent, _notice, 14, true, GuideUi.Orange);
-            var sources = _ui.Card(parent, Color.white, 16, 6);
-            _ui.Label(sources, "안내 출처", 14, true);
+            var sources = _ui.Card(parent, GuideUi.Paper, 0, 6);
+            _ui.Divider(sources);
+            _ui.Label(sources, "참고 자료", 14, true);
             if (!string.IsNullOrWhiteSpace(CurrentItem.sourceCheckedOn))
                 _ui.Label(sources, "확인 " + CurrentItem.sourceCheckedOn, 13, false, GuideUi.Muted);
             foreach (string url in result.sourceUrls.Distinct())
             {
                 string source = url;
-                _ui.Button(sources, SourceName(url) + "  ↗", () => Application.OpenURL(source), false, 42, 13, GuideUi.Soft);
+                _ui.TextButton(sources, SourceName(url) + "  ↗", () => Application.OpenURL(source));
             }
             if (CurrentItem.sourceScope != "seongbuk")
             {
                 _ui.Label(sources, "배출 요일·수거 방식은 성북구 안내에서 확인해 주세요.", 13, false, GuideUi.Muted);
-                _ui.Button(sources, "성북구 수거 안내  ↗", () => Application.OpenURL(
-                    "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"), false, 42, 13, GuideUi.Soft);
+                _ui.TextButton(sources, "성북구 수거 안내  ↗", () => Application.OpenURL(
+                    "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"));
             }
             _ui.Button(parent, CanScan ? "다른 물건 스캔하기" : "다른 물건 찾아보기",
-                () => { if (CanScan) StartScan(); else ShowSearch(""); }, true);
-            _ui.Button(parent, "이 물건 처음부터 다시 확인", () => SelectItem(CurrentItem.id, true, _cameFromScan), false, 46, 14);
+                () => { if (CanScan) StartScan(); else ShowSearch(""); }, !CanScan, 48, 15);
+            _ui.TextButton(parent, "이 물건 처음부터 확인", () => SelectItem(CurrentItem.id, true, _cameFromScan));
         }
 
         void BeginPlacement()
@@ -459,19 +477,19 @@ namespace SeongbukAR
         void RenderPlacement()
         {
             var page = _ui.Begin(true);
-            HeaderCard(page, "공간에 배출 안내 놓기", () => { _spatial.Clear(); Navigate(Page.Guide); });
+            HeaderCard(page, "AR 안내", () => { _spatial.Clear(); Navigate(Page.Guide); });
             var clearCamera = GuideUi.NewRect("Camera View", page);
             GuideUi.Size(clearCamera, flexibleHeight: 1, minHeight: 60);
             if (!_placementPlaced)
             {
-                var reticle = _ui.Label(clearCamera, "+", 46, false, Color.white, TextAnchor.MiddleCenter);
+                var reticle = _ui.Label(clearCamera, "+", 30, false, Color.white, TextAnchor.MiddleCenter);
                 GuideUi.Stretch(reticle.rectTransform);
             }
             var instructions = _ui.Card(page, GuideUi.Paper, 16, 8);
-            _ui.Label(instructions, _placementPlaced ? "안내를 놓았어요" : "책상이나 바닥을 천천히 비춰 주세요", 18, true);
+            _ui.Label(instructions, _placementPlaced ? "안내 배치 완료" : "책상이나 바닥을 비춰 주세요", 18, true);
             _ui.Label(instructions, _notice ?? "화면 가운데에 안내를 놓을 위치를 맞춰 주세요.", 14, false, GuideUi.Muted);
-            _ui.Button(page, _placementPlaced ? "다른 위치에 놓기" : "이 위치에 안내 놓기", PlaceGuide, true);
-            _ui.Button(page, "배출 방법으로 돌아가기", () => { _spatial.Clear(); Navigate(Page.Guide); }, false, 44, 14);
+            _ui.Button(instructions, _placementPlaced ? "다른 위치에 놓기" : "이 위치에 안내 놓기", PlaceGuide, true);
+            _ui.TextButton(instructions, "배출 방법으로 돌아가기", () => { _spatial.Clear(); Navigate(Page.Guide); });
         }
 
         void RenderMessage()
@@ -480,21 +498,21 @@ namespace SeongbukAR
             _ui.Header(page, "어디다 버려?", ShowHome);
             var content = _ui.Scroll(page);
             _ui.Photo(content, _scanner != null ? _scanner.LatestCapturedFrame : null, 175);
-            _ui.Label(content, _messageTitle, 26, true);
+            _ui.Label(content, _messageTitle, 24, true);
             _ui.Label(content, _messageBody, 17, false, GuideUi.Muted);
             _ui.Button(page, "이름으로 찾아보기", () => ShowSearch(""), true);
-            if (CanScan) _ui.Button(page, "다시 스캔하기", StartScan);
+            if (CanScan) _ui.TextButton(page, "다시 스캔하기", StartScan);
         }
 
         static string ScopeLabel(string scope)
         {
             switch (scope)
             {
-                case "seongbuk": return "성북구 안내를 참고했어요";
-                case "seoul": return "서울시 안내를 참고했어요";
-                case "seoul_other_district_reference": return "다른 자치구 참고 사례 · 성북구 확인이 필요해요";
-                case "national": return "전국 공통 안내 · 성북구 수거 방식도 확인해 주세요";
-                default: return "품목별 공식 안내 · 지역의 수거 방식도 확인해 주세요";
+                case "seongbuk": return "성북구 안내 기준";
+                case "seoul": return "서울시 안내 참고";
+                case "seoul_other_district_reference": return "다른 자치구 참고 사례 · 성북구 기준 확인 필요";
+                case "national": return "전국 공통 안내 · 지역 수거 방식 확인 필요";
+                default: return "공식 품목 안내 · 지역 수거 방식 확인 필요";
             }
         }
 

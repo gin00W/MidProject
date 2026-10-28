@@ -6,7 +6,8 @@ AR Mid Term Project
 - Unity 6000.3.22f1 / 맥북 개발 / 실제 아이폰에서 ARKit 실행
 - 실행 순서: [START_HERE.md](START_HERE.md)
 - 실물 스캔 → 인식 후보 확인 → 재질·오염 질문 → 준비 순서와 배출 방법
-- 프리텐다드 Regular/Semibold, 밝은 uGUI 화면, 검색·분류 59품목
+- SUIT Regular/SemiBold, 밝은 uGUI 화면, 검색·분류 59품목
+- 글꼴 견본: [Pretendard / SUIT 비교](Docs/font-comparison.png) — 동일 문장으로 만든 글꼴 견본이며 Unity 실행 캡처는 아닙니다.
 - iPhone에서 Apple Vision으로 기기 내 사진 분석. 서버 전송/API 키 없이 동작
 - 배출 안내를 인식된 책상·바닥 위에 놓는 공간 AR 화면
 - 처음 장면 생성: `Seongbuk AR > 1. Create Starter Scenes`
