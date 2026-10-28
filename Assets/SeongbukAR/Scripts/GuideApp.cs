@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SeongbukAR.Notes;
 using SeongbukAR.Scanning;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,12 +17,20 @@ namespace SeongbukAR
         public GuideNode CurrentNode { get; private set; }
         public string TrackingMessage { get; set; }
 
-        enum Page { Home, Search, Scanning, Candidates, Guide, Placement, Message }
+        enum Page { Home, Search, Scanning, Candidates, Guide, Placement, Message, Notes, NoteEdit, NoteDetail }
         Page _page;
         WasteCatalog _catalog;
         GuideUi _ui;
         WasteScanController _scanner;
         SpatialGuide _spatial;
+        PersonalWasteNotes _notes;
+        PersonalWasteNote _noteDraft;
+        string _notesLoadError;
+        string _selectedNoteId;
+        string _noteQuery = "";
+        bool _confirmNoteDelete;
+        RectTransform _noteResults;
+        Text _noteFormError;
         readonly Stack<GuideNode> _history = new Stack<GuideNode>();
         RecognitionCandidate[] _candidates = Array.Empty<RecognitionCandidate>();
         RectTransform _searchResults;
@@ -52,6 +61,13 @@ namespace SeongbukAR
             {
                 _error = exception.Message;
                 Debug.LogException(exception);
+            }
+            try { _notes = new PersonalWasteNotes(PersonalWasteNoteStore.Load()); }
+            catch (Exception exception)
+            {
+                // Keep the built-in guide usable and preserve the existing file.
+                _notesLoadError = "기존 메모를 읽을 수 없습니다. 저장된 내용을 보호하기 위해 새 메모 저장을 중지했습니다. 앱을 다시 실행해 주세요.";
+                Debug.LogWarning("Personal waste notes could not load: " + exception.Message);
             }
         }
 
@@ -91,6 +107,7 @@ namespace SeongbukAR
 
         void OnDisable()
         {
+            GuideUi.DismissKeyboard();
             _ui?.SetVisible(false);
             _acceptScanResult = false;
             _scanner?.CancelScan();
@@ -109,6 +126,7 @@ namespace SeongbukAR
 
         void Navigate(Page page)
         {
+            GuideUi.DismissKeyboard();
             if (page != Page.Scanning)
             {
                 _acceptScanResult = false;
@@ -249,6 +267,9 @@ namespace SeongbukAR
                 case Page.Guide: RenderGuide(); break;
                 case Page.Placement: RenderPlacement(); break;
                 case Page.Message: RenderMessage(); break;
+                case Page.Notes: RenderNotes(); break;
+                case Page.NoteEdit: RenderNoteEdit(); break;
+                case Page.NoteDetail: RenderNoteDetail(); break;
             }
         }
 
@@ -284,6 +305,7 @@ namespace SeongbukAR
             _ui.ListButton(shortcuts, "배달 용기", "엽떡·마라탕 용기에 기름이 남았다면", () => ShowSearch("배달 용기"));
             _ui.ListButton(shortcuts, "페트병", "몸통·뚜껑·라벨 배출 방법", () => ShowSearch("페트병"));
             _ui.ListButton(shortcuts, "단추", "작은 생활용품의 재질 확인", () => ShowSearch("단추"));
+            _ui.ListButton(shortcuts, "내 메모", "목록에 없는 물건과 확인할 내용", ShowNotes);
             var actions = _ui.Card(page, GuideUi.Paper, CanScan ? 12 : 0, 4);
             _ui.Button(actions, "쓰레기 스캔하기", StartScan, true, 52);
             _ui.TextButton(actions, "이름으로 직접 찾기", () => ShowSearch(""), 44, 15);
@@ -305,6 +327,7 @@ namespace SeongbukAR
             CategoryRow(page, new[] { "생활용품", "별도수거" });
             _searchResults = _ui.Scroll(page);
             RenderSearchMatches();
+            _ui.TextButton(page, "목록에 없는 물건 메모하기", () => NewNote(_query));
         }
 
         void CategoryRow(Transform parent, string[] categories)
@@ -332,17 +355,30 @@ namespace SeongbukAR
             if (_page != Page.Search || _searchResults == null) return;
             GuideUi.Clear(_searchResults);
             var matches = _catalog.Search(_query).Where(MatchesCategory).ToArray();
-            _ui.Label(_searchResults, matches.Length + "개 품목", 13, false, GuideUi.Muted);
+            var personalMatches = _notes?.Search(_query).ToArray() ?? Array.Empty<PersonalWasteNote>();
+            _ui.Label(_searchResults, "기본 안내 " + matches.Length + "개 품목", 13, false, GuideUi.Muted);
             foreach (var item in matches)
             {
                 _ui.ListButton(_searchResults, item.name, null, () => SelectItem(item.id, true, false));
             }
-            if (matches.Length == 0)
+            if (matches.Length == 0 && personalMatches.Length == 0)
             {
                 var card = _ui.Card(_searchResults, GuideUi.Soft);
-                _ui.Label(card, "검색 결과가 없습니다", 18, true);
-                _ui.Label(card, "다른 이름이나 재질로 검색하세요. 공식 품목사전에서도 찾아볼 수 있습니다.", 15, false, GuideUi.Muted);
-                _ui.Button(card, "공식 품목사전 열기", () => Application.OpenURL("https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do"));
+                bool hiddenByCategory = _catalog.Search(_query).Any();
+                _ui.Label(card, hiddenByCategory ? "선택한 분류에는 결과가 없습니다" : "이 이름으로 찾지 못했습니다", 18, true);
+                _ui.Label(card, hiddenByCategory ? "전체 분류에서 같은 이름의 품목을 확인하세요." :
+                    "다른 이름으로 검색하거나 공식 품목사전을 확인하세요. 아직 없는 물건은 내 메모에 적어둘 수 있습니다.", 15, false, GuideUi.Muted);
+                if (hiddenByCategory)
+                    _ui.Button(card, "전체 분류에서 보기", () => { _category = "전체"; RenderSearch(); });
+                AddOfficialLinks(card);
+            }
+            if (personalMatches.Length == 0) return;
+            _ui.Divider(_searchResults);
+            _ui.Label(_searchResults, "내 메모 " + personalMatches.Length + "개 · 직접 기록한 정보", 13, false, GuideUi.Muted);
+            foreach (var note in personalMatches)
+            {
+                string id = note.id;
+                _ui.ListButton(_searchResults, note.name, NoteStatus(note), () => ShowNote(id));
             }
         }
 
@@ -386,6 +422,7 @@ namespace SeongbukAR
             }
             _ui.Button(page, "맞는 항목 없음 · 이름으로 찾기", () => ShowSearch(""), false, 48, 15);
             _ui.TextButton(page, "다시 스캔하기", StartScan);
+            _ui.TextButton(content, "목록에 없는 물건 메모하기", () => NewNote(""));
         }
 
         void RenderGuide()
@@ -500,9 +537,185 @@ namespace SeongbukAR
             _ui.Photo(content, _scanner != null ? _scanner.LatestCapturedFrame : null, 175);
             _ui.Label(content, _messageTitle, 24, true);
             _ui.Label(content, _messageBody, 17, false, GuideUi.Muted);
+            AddOfficialLinks(content);
+            _ui.Button(content, "목록에 없는 물건 메모하기", () => NewNote(""), false, 48, 15);
             _ui.Button(page, "이름으로 찾아보기", () => ShowSearch(""), true);
             if (CanScan) _ui.TextButton(page, "다시 스캔하기", StartScan);
         }
+
+        void AddOfficialLinks(Transform parent)
+        {
+            _ui.TextButton(parent, "공식 품목사전 열기  ↗", () => Application.OpenURL(
+                "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do"));
+            _ui.TextButton(parent, "성북구 수거 안내 확인  ↗", () => Application.OpenURL(
+                "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"));
+        }
+
+        void ShowNotes()
+        {
+            _confirmNoteDelete = false;
+            Navigate(Page.Notes);
+        }
+
+        void NewNote(string name)
+        {
+            if (_notes == null) { ShowNotes(); return; }
+            _noteDraft = new PersonalWasteNote { name = name ?? "" };
+            Navigate(Page.NoteEdit);
+        }
+
+        void ShowNote(string id)
+        {
+            _selectedNoteId = id;
+            _confirmNoteDelete = false;
+            Navigate(Page.NoteDetail);
+        }
+
+        void RenderNotes()
+        {
+            var page = _ui.Begin();
+            _ui.Header(page, "내 메모", ShowHome);
+            if (_notes == null)
+            {
+                var error = _ui.Scroll(page);
+                _ui.Label(error, _notesLoadError, 16);
+                AddOfficialLinks(error);
+                return;
+            }
+            _ui.Label(page, "직접 기록한 물건", 23, true);
+            _ui.Label(page, "이 기기에 저장한 개인 기록입니다. 공식 배출 안내와 구분해서 확인하세요.", 14, false, GuideUi.Muted);
+            _ui.SearchField(page, _noteQuery, value => { _noteQuery = value; RenderNoteMatches(); });
+            _noteResults = _ui.Scroll(page);
+            RenderNoteMatches();
+            _ui.Button(page, "새 물건 메모하기", () => NewNote(_noteQuery), true);
+        }
+
+        void RenderNoteMatches()
+        {
+            if (_page != Page.Notes || _noteResults == null || _notes == null) return;
+            GuideUi.Clear(_noteResults);
+            var notes = _notes.Search(_noteQuery).ToArray();
+            _ui.Label(_noteResults, notes.Length + "개 메모", 13, false, GuideUi.Muted);
+            foreach (var note in notes)
+            {
+                string id = note.id;
+                _ui.ListButton(_noteResults, note.name, NoteStatus(note), () => ShowNote(id));
+            }
+            if (notes.Length == 0)
+                _ui.Label(_noteResults, "아직 저장한 물건이 없거나 검색어와 일치하는 메모가 없습니다. 이름만 적어두고 나중에 내용을 추가해도 됩니다.", 16, false, GuideUi.Muted);
+        }
+
+        void RenderNoteEdit()
+        {
+            if (_noteDraft == null || _notes == null) { ShowNotes(); return; }
+            var page = _ui.Begin();
+            _ui.Header(page, "물건 메모하기", () =>
+            {
+                if (string.IsNullOrEmpty(_noteDraft.id)) ShowNotes();
+                else ShowNote(_noteDraft.id);
+            });
+            var content = _ui.Scroll(page);
+            _ui.Label(content, "목록에 없는 물건 기록", 23, true);
+            _ui.Label(content, "이름만 먼저 저장할 수 있습니다. 확인한 배출 방법과 출처는 나중에 수정하세요.", 14, false, GuideUi.Muted);
+            _noteFormError = _ui.Label(content, "", 14, true, GuideUi.Notice);
+            _ui.Label(content, "물건 이름 · 필수", 14, true);
+            _ui.TextField(content, _noteDraft.name, "예: 접이식 우산", value => _noteDraft.name = value, 60);
+            _ui.Label(content, "재질·상태 · 선택", 14, true);
+            _ui.TextField(content, _noteDraft.material, "예: 천과 금속이 붙어 있음", value => _noteDraft.material = value, 120);
+            _ui.Label(content, "확인할 내용·배출 방법 메모 · 선택", 14, true);
+            _ui.TextField(content, _noteDraft.disposalMemo, "모르면 비워두거나 나중에 확인할 내용을 적으세요.",
+                value => _noteDraft.disposalMemo = value, 1000, true);
+            _ui.Label(content, "참고 링크 · 선택", 14, true);
+            _ui.TextField(content, _noteDraft.sourceUrl, "https://로 시작하는 자료 주소", value => _noteDraft.sourceUrl = value, 500);
+            AddOfficialLinks(content);
+            _ui.Label(content, "메모는 이 기기에만 저장됩니다. 기본 안내 목록이나 사진 인식 학습에는 자동으로 반영되지 않습니다. 앱을 삭제하면 기록도 사라질 수 있습니다.", 13, false, GuideUi.Muted);
+            _ui.Button(page, "이 기기에 저장", SaveNote, true);
+        }
+
+        void SaveNote()
+        {
+            GuideUi.DismissKeyboard();
+            try
+            {
+                var staged = new PersonalWasteNotes(_notes.Data);
+                var saved = staged.Upsert(_noteDraft);
+                PersonalWasteNoteStore.Save(staged.Data);
+                _notes = staged;
+                ShowNote(saved.id);
+            }
+            catch (Exception exception)
+            {
+                if (_noteFormError != null)
+                {
+                    _noteFormError.text = exception is ArgumentException ? exception.Message :
+                        "메모를 저장하지 못했습니다. 입력 분량과 기기 저장 공간을 확인하세요.";
+                    Canvas.ForceUpdateCanvases();
+                    var scroll = _noteFormError.GetComponentInParent<ScrollRect>();
+                    if (scroll != null) scroll.verticalNormalizedPosition = 1;
+                }
+                Debug.LogWarning("Personal waste note save failed: " + exception.Message);
+            }
+        }
+
+        void RenderNoteDetail()
+        {
+            var note = _notes?.Find(_selectedNoteId);
+            if (note == null) { ShowNotes(); return; }
+            var page = _ui.Begin();
+            _ui.Header(page, "저장한 메모", ShowNotes);
+            var content = _ui.Scroll(page);
+            _ui.Label(content, "개인 메모 · 검증되지 않은 정보", 13, true, GuideUi.Muted);
+            _ui.Label(content, note.name, 25, true);
+            _ui.Label(content, NoteStatus(note), 14, false, GuideUi.Muted);
+            _ui.Divider(content);
+            if (!string.IsNullOrWhiteSpace(note.material))
+            {
+                _ui.Label(content, "재질·상태", 14, true);
+                _ui.Label(content, note.material, 16);
+            }
+            _ui.Label(content, "내가 적은 내용", 14, true);
+            _ui.Label(content, string.IsNullOrWhiteSpace(note.disposalMemo) ?
+                "배출 방법을 아직 기록하지 않았습니다. 공식 안내를 확인한 뒤 메모를 수정하세요." : note.disposalMemo, 16);
+            if (!string.IsNullOrWhiteSpace(note.sourceUrl))
+                _ui.TextButton(content, "기록한 참고 링크 열기  ↗", () => Application.OpenURL(note.sourceUrl));
+            if (DateTime.TryParse(note.updatedUtc, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime updated))
+                _ui.Label(content, "저장 " + updated.ToLocalTime().ToString("yyyy.MM.dd HH:mm"), 13, false, GuideUi.Muted);
+            AddOfficialLinks(content);
+            var actions = _ui.Card(page, GuideUi.Paper, 0, 4);
+            if (!string.IsNullOrEmpty(_notice)) _ui.Label(actions, _notice, 14, true, GuideUi.Notice);
+            if (_confirmNoteDelete)
+            {
+                _ui.Label(actions, "이 메모를 삭제할까요?", 16, true);
+                _ui.Button(actions, "삭제", DeleteNote, true, 48);
+                _ui.TextButton(actions, "취소", () => { _confirmNoteDelete = false; Render(); });
+            }
+            else
+            {
+                _ui.Button(actions, "메모 수정", () => { _noteDraft = _notes.Find(note.id); Navigate(Page.NoteEdit); }, true);
+                _ui.TextButton(actions, "메모 삭제", () => { _confirmNoteDelete = true; Render(); });
+            }
+        }
+
+        void DeleteNote()
+        {
+            try
+            {
+                var staged = new PersonalWasteNotes(_notes.Data);
+                staged.Remove(_selectedNoteId);
+                PersonalWasteNoteStore.Save(staged.Data);
+                _notes = staged;
+                ShowNotes();
+            }
+            catch (Exception exception)
+            {
+                _notice = "메모를 삭제하지 못했습니다. 저장 공간을 확인하고 다시 시도하세요.";
+                Debug.LogWarning("Personal waste note delete failed: " + exception.Message);
+                Render();
+            }
+        }
+
+        static string NoteStatus(PersonalWasteNote note) =>
+            string.IsNullOrWhiteSpace(note.disposalMemo) ? "배출 방법 확인 필요" : "내가 작성한 메모 · 공식 안내 아님";
 
         static string ScopeLabel(string scope)
         {

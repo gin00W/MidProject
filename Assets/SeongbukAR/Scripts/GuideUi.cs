@@ -24,8 +24,10 @@ namespace SeongbukAR
         internal readonly Font Semibold;
         readonly RectTransform _safe;
         readonly Image _background;
+        readonly Vector3[] _fieldCorners = new Vector3[4];
         GameObject _page;
         Rect _lastSafe;
+        InputField _lastSelectedInput;
         static Sprite _rounded;
 
         internal GuideUi(Transform parent)
@@ -73,11 +75,61 @@ namespace SeongbukAR
                 float top = safe.yMax;
                 safe.yMin = Mathf.Min(top - 180, Mathf.Max(safe.yMin, TouchScreenKeyboard.area.yMax));
             }
-            if (safe == _lastSafe || Screen.width <= 0 || Screen.height <= 0) return;
-            _lastSafe = safe;
-            _safe.anchorMin = new Vector2(safe.xMin / Screen.width, safe.yMin / Screen.height);
-            _safe.anchorMax = new Vector2(safe.xMax / Screen.width, safe.yMax / Screen.height);
-            _safe.offsetMin = _safe.offsetMax = Vector2.zero;
+            if (Screen.width <= 0 || Screen.height <= 0) return;
+            bool safeChanged = safe != _lastSafe;
+            if (safeChanged)
+            {
+                _lastSafe = safe;
+                _safe.anchorMin = new Vector2(safe.xMin / Screen.width, safe.yMin / Screen.height);
+                _safe.anchorMax = new Vector2(safe.xMax / Screen.width, safe.yMax / Screen.height);
+                _safe.offsetMin = _safe.offsetMax = Vector2.zero;
+            }
+
+            var events = EventSystem.current;
+            var selected = events != null ? events.currentSelectedGameObject : null;
+            var input = selected != null ? selected.GetComponentInParent<InputField>() : null;
+            bool focusChanged = input != _lastSelectedInput;
+            _lastSelectedInput = input;
+            if ((safeChanged || focusChanged) && input != null && input.isActiveAndEnabled &&
+                input.transform.IsChildOf(_safe))
+                RevealInput(input);
+        }
+
+        void RevealInput(InputField input)
+        {
+            var scroll = input.GetComponentInParent<ScrollRect>();
+            if (scroll == null || !scroll.vertical || scroll.viewport == null || scroll.content == null ||
+                !input.transform.IsChildOf(scroll.content)) return;
+
+            // Keyboard bounds resize the page before the regular Canvas pass.
+            // Resolve that layout once, then reveal the field without changing
+            // selection or interrupting typing and Korean text composition.
+            Canvas.ForceUpdateCanvases();
+            var viewport = scroll.viewport;
+            float hiddenHeight = scroll.content.rect.height - viewport.rect.height;
+            if (hiddenHeight <= 0 || viewport.rect.height <= 0) return;
+            ((RectTransform)input.transform).GetWorldCorners(_fieldCorners);
+            float bottom = float.PositiveInfinity;
+            float top = float.NegativeInfinity;
+            foreach (var corner in _fieldCorners)
+            {
+                float y = viewport.InverseTransformPoint(corner).y;
+                bottom = Mathf.Min(bottom, y);
+                top = Mathf.Max(top, y);
+            }
+            float padding = Mathf.Min(8, viewport.rect.height * 0.1f);
+            float visibleBottom = viewport.rect.yMin + padding;
+            float visibleTop = viewport.rect.yMax - padding;
+            float offset = 0;
+            if (top - bottom > visibleTop - visibleBottom)
+                offset = visibleTop - top;
+            else if (bottom < visibleBottom)
+                offset = visibleBottom - bottom;
+            else if (top > visibleTop)
+                offset = visibleTop - top;
+            if (Mathf.Abs(offset) < 0.5f) return;
+            scroll.StopMovement();
+            scroll.verticalNormalizedPosition = Mathf.Clamp01(scroll.verticalNormalizedPosition - offset / hiddenHeight);
         }
 
         internal void SetVisible(bool visible) => _safe.parent.gameObject.SetActive(visible);
@@ -316,6 +368,55 @@ namespace SeongbukAR
             input.SetTextWithoutNotify(value ?? "");
             input.onValueChanged.AddListener(newValue => onChange?.Invoke(newValue));
             return input;
+        }
+
+        internal InputField TextField(Transform parent, string value, string placeholder,
+            Action<string> onChange, int characterLimit = 120, bool multiline = false)
+        {
+            var rect = NewRect("Note Text Field", parent);
+            var image = rect.gameObject.AddComponent<Image>();
+            image.sprite = Rounded;
+            image.type = Image.Type.Sliced;
+            image.color = Soft;
+            float height = multiline ? 100 : 52;
+            Size(rect, height: height, minHeight: height);
+            rect.gameObject.AddComponent<RectMask2D>();
+
+            var input = rect.gameObject.AddComponent<InputField>();
+            input.targetGraphic = image;
+            input.contentType = InputField.ContentType.Standard;
+            input.characterLimit = Mathf.Clamp(characterLimit, 1, 1000);
+            input.lineType = multiline ? InputField.LineType.MultiLineNewline : InputField.LineType.SingleLine;
+            input.keyboardType = TouchScreenKeyboardType.Default;
+            input.customCaretColor = true;
+            input.caretColor = Ink;
+            input.selectionColor = new Color(0.65f, 0.65f, 0.65f, 0.35f);
+
+            TextAnchor alignment = multiline ? TextAnchor.UpperLeft : TextAnchor.MiddleLeft;
+            var hint = Label(rect, placeholder, 16, false, Muted, alignment);
+            Stretch(hint.rectTransform, 14, multiline ? 12 : 8);
+            hint.verticalOverflow = VerticalWrapMode.Truncate;
+            var text = Label(rect, "", 16, false, Ink, alignment);
+            Stretch(text.rectTransform, 14, multiline ? 12 : 8);
+            text.horizontalOverflow = multiline ? HorizontalWrapMode.Wrap : HorizontalWrapMode.Overflow;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            input.textComponent = text;
+            input.placeholder = hint;
+            input.SetTextWithoutNotify(value ?? "");
+            // The caller only updates the note draft here. Rebuilding the page
+            // while typing would destroy focus and interrupt Korean composition.
+            input.onValueChanged.AddListener(newValue => onChange?.Invoke(newValue));
+            return input;
+        }
+
+        internal static void DismissKeyboard()
+        {
+            var events = EventSystem.current;
+            if (events == null) return;
+            var selected = events.currentSelectedGameObject;
+            var input = selected != null ? selected.GetComponentInParent<InputField>() : null;
+            if (input != null) input.DeactivateInputField();
+            events.SetSelectedGameObject(null);
         }
 
         internal RectTransform Scroll(Transform parent)

@@ -9,6 +9,7 @@ AR Mid Term Project
 - SUIT Regular/SemiBold, 흰색·회색·검정의 uGUI 화면, 검색·분류 59품목
 - iPhone에서 Apple Vision으로 기기 내 사진 분석. 서버 전송/API 키 없이 동작
 - 배출 안내를 인식된 책상·바닥 위에 놓는 공간 AR 화면
+- 인식 실패·목록에 없는 물건: 재촬영, 이름 검색, 공식 자료 확인, 기기에 저장하는 개인 메모
 - 처음 장면 생성: `Seongbuk AR > 1. Create Starter Scenes`
 - 기존 사용자: 같은 브랜치에서 Pull한 뒤 기존 `GuidePreview`를 Play
 - 데이터 근거와 범위: [Docs/catalog-sources.md](Docs/catalog-sources.md)
@@ -16,4 +17,5 @@ AR Mid Term Project
 
 59품목은 검색·상태별 안내 범위이며 59품목 전체의 사진 인식 보장을 뜻하지 않습니다.
 사진만으로 기름 제거 가능 여부·소재·지역 배출 규칙을 확정하지 않고 사용자가 확인합니다.
+개인 메모는 기본 59품목 안내와 구분하며, 공식 검수·공유 서버·사진 인식 학습에 자동 반영하지 않습니다.
 Unity/uGUI 렌더링, Xcode 네이티브 빌드, 실제 iPhone 인식 성능은 아직 검증하지 못했습니다.
