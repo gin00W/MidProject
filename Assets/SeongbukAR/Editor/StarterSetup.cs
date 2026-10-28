@@ -1,14 +1,13 @@
 using System.IO;
+using System.Linq;
 using Unity.XR.CoreUtils;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.SceneManagement;
-using UnityEditor.XR.ARSubsystems;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.XR.ARFoundation;
-using UnityEngine.XR.ARSubsystems;
 
 namespace SeongbukAR.Editor
 {
@@ -23,15 +22,7 @@ namespace SeongbukAR.Editor
         {
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             Directory.CreateDirectory(Root + "/Scenes");
-            Directory.CreateDirectory(Root + "/Generated");
             AssetDatabase.Refresh();
-            var library = CreateLibrary();
-            var material = AssetDatabase.LoadAssetAtPath<Material>(Root + "/Generated/GuideGreen.mat");
-            if (material == null)
-            {
-                material = new Material(Shader.Find("Standard")) { color = new Color(0.17f, 0.86f, 0.55f) };
-                AssetDatabase.CreateAsset(material, Root + "/Generated/GuideGreen.mat");
-            }
             if (!File.Exists(PreviewPath))
             {
                 var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
@@ -71,13 +62,7 @@ namespace SeongbukAR.Editor
                 origin.CameraFloorOffsetObject = offset;
                 origin.RequestedTrackingOriginMode = XROrigin.TrackingOriginMode.Device;
                 origin.CameraYOffset = 0;
-                var manager = originObject.AddComponent<ARTrackedImageManager>();
-                manager.referenceLibrary = library;
-                manager.requestedMaxNumberOfMovingImages = 1;
-                var app = new GameObject("Guide App").AddComponent<GuideApp>();
-                var tracker = originObject.AddComponent<CardGuideTracker>();
-                tracker.app = app;
-                tracker.guideMaterial = material;
+                new GameObject("Guide App").AddComponent<GuideApp>();
                 var light = new GameObject("Guide Light").AddComponent<Light>();
                 light.type = LightType.Directional;
                 light.transform.rotation = Quaternion.Euler(45, -30, 0);
@@ -86,36 +71,34 @@ namespace SeongbukAR.Editor
             PlayerSettings.companyName = "StudentProject";
             PlayerSettings.productName = "Seongbuk AR Guide";
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
-            PlayerSettings.iOS.cameraUsageDescription = "그림카드를 인식해 AR 분리배출 안내를 표시합니다.";
+            PlayerSettings.iOS.cameraUsageDescription = "물건을 스캔해 분리배출 방법과 공간 안내를 표시합니다.";
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.iOS, ScriptingImplementation.IL2CPP);
             // Do not write a signing identity or replace a user's bundle identifier.
-            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ARPath, true) };
+            var buildScenes = EditorBuildSettings.scenes.ToList();
+            if (!buildScenes.Any(scene => scene.path == ARPath))
+                buildScenes.Insert(0, new EditorBuildSettingsScene(ARPath, true));
+            EditorBuildSettings.scenes = buildScenes.ToArray();
             AssetDatabase.SaveAssets();
             EditorSceneManager.OpenScene(PreviewPath);
             EditorUtility.DisplayDialog("시작 장면 준비 완료",
-                "Play로 질문 흐름을 확인하세요.\n아이폰 실행 전 START_HERE.md의 ARKit/iOS 설정을 적용하세요.", "확인");
+                "Play로 새 화면과 품목 검색을 확인하세요.\n실물 스캔과 공간 안내는 아이폰에 빌드해 확인합니다.\nSTART_HERE.md의 ARKit/iOS 설정을 먼저 적용하세요.", "확인");
         }
 
-        static XRReferenceImageLibrary CreateLibrary()
+        [MenuItem("Seongbuk AR/2. Check Catalog")]
+        public static void CheckCatalog()
         {
-            string path = Root + "/Generated/WasteCardLibrary.asset";
-            var library = AssetDatabase.LoadAssetAtPath<XRReferenceImageLibrary>(path);
-            if (library != null) return library;
-            library = ScriptableObject.CreateInstance<XRReferenceImageLibrary>();
-            AssetDatabase.CreateAsset(library, path);
-            foreach (string id in new[] { "pet_bottle", "plastic_container" })
-            {
-                var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(Root + "/Art/" + id + ".png");
-                if (texture == null) throw new FileNotFoundException("그림카드 이미지가 없습니다: " + id);
-                library.Add();
-                int index = library.count - 1;
-                library.SetName(index, id);
-                library.SetTexture(index, texture, true);
-                library.SetSpecifySize(index, true);
-                library.SetSize(index, new Vector2(0.12f, 0.09f));
-            }
-            EditorUtility.SetDirty(library);
-            return library;
+            var text = Resources.Load<TextAsset>("Data/seongbuk-demo");
+            if (text == null) throw new FileNotFoundException("품목 목록을 찾을 수 없습니다.");
+            var catalog = new WasteCatalog(JsonUtility.FromJson<WasteCatalogData>(text.text));
+            EditorUtility.DisplayDialog("품목 목록 확인", catalog.Data.items.Length + "개 품목의 질문 연결을 확인했습니다.", "확인");
+        }
+
+        [MenuItem("Seongbuk AR/3. Open iPhone Scan Scene")]
+        public static void OpenScanScene()
+        {
+            if (!File.Exists(ARPath)) CreateScenes();
+            if (!File.Exists(ARPath) || !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            EditorSceneManager.OpenScene(ARPath);
         }
     }
 }

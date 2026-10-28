@@ -19,6 +19,10 @@ namespace SeongbukAR
         public string name;
         public string[] aliases;
         public string reviewStatus;
+        public string sourceScope;
+        public string sourceCheckedOn;
+        public string recognitionGroup;
+        public string[] recognitionKeywords;
         public string startNodeId;
         public GuideNode[] nodes;
 

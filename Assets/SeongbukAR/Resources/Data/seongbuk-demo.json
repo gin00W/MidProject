@@ -5,65 +5,3402 @@
     {
       "id": "pet_bottle",
       "name": "투명 생수·음료 페트병",
-      "aliases": ["생수병", "음료수병", "물병", "페트병", "PET"],
+      "aliases": [
+        "생수병",
+        "음료수병",
+        "물병",
+        "페트병",
+        "PET",
+        "탄산수병"
+      ],
       "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "bottle",
+      "recognitionKeywords": [
+        "water bottle",
+        "plastic bottle",
+        "beverage bottle",
+        "bottled water",
+        "bottle"
+      ],
       "startNodeId": "contents",
       "nodes": [
-        {"id":"contents", "prompt":"생수·음료가 담겼던 무색 투명 페트병인가요?", "choices":[{"label":"네, 투명 생수·음료 페트병이에요", "nextNodeId":"clear_pet"},{"label":"아니요 / 잘 모르겠어요", "nextNodeId":"check_type"}]},
-        {"id":"clear_pet", "result":{"destination":"투명페트병 별도 배출", "steps":["내용물을 비우고 헹궈 주세요.","라벨을 제거해 주세요.","압착한 뒤 뚜껑을 닫아 주세요.","투명페트병을 별도로 모아 배출하고, 주거지의 성북구 수거 안내를 확인하세요."],"explanation":"생수·음료용 무색 투명 페트병의 개발용 안내입니다. 모든 투명 용기가 같은 대상인 것은 아닙니다.","sourceUrls":["https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"]}},
-        {"id":"check_type", "result":{"destination":"용도와 재질 확인 필요", "steps":["무엇이 담겼던 용기인지와 분리배출 표시를 확인하세요.","식품 트레이·유색 용기 등을 투명 생수병과 동일하게 처리하지 않도록 공식 품목사전에서 정확한 품목을 확인하세요."],"explanation":"정보가 부족한 경우 자동으로 배출 종류를 확정하지 않습니다.","sourceUrls":["https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do"]}}
+        {
+          "id": "contents",
+          "prompt": "생수나 음료가 담겼던 무색 투명 페트병인가요?",
+          "choices": [
+            {
+              "label": "네, 투명 생수·음료 페트병이에요",
+              "nextNodeId": "clear_pet"
+            },
+            {
+              "label": "아니요 / 잘 모르겠어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "clear_pet",
+          "result": {
+            "destination": "투명페트병 별도 배출",
+            "steps": [
+              "내용물을 비우고 물로 헹궈 주세요.",
+              "라벨은 떼어 비닐류 등 표시된 재질로 분리해 주세요.",
+              "병을 압착한 뒤 뚜껑을 다시 닫아 주세요.",
+              "다른 플라스틱과 구분해 투명페트병으로 배출해 주세요."
+            ],
+            "explanation": "생수·음료용 무색 투명 페트병은 별도로 모아요. 뚜껑을 무조건 따로 버리는 방식으로 안내하지 않아요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=122",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "색이 있는 병, 식용유·세제 용기, 투명 트레이는 생수·음료 투명페트병과 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
       ]
     },
     {
       "id": "plastic_container",
-      "name": "배달 플라스틱 용기 (내용물 별도)",
-      "aliases": ["마라탕 용기", "엽떡 용기", "떡볶이 용기", "배달 용기", "기름 묻은 플라스틱"],
+      "name": "배달 플라스틱 용기",
+      "aliases": [
+        "마라탕 용기",
+        "엽떡 용기",
+        "떡볶이 용기",
+        "배달 용기",
+        "빨간 기름 묻은 통",
+        "기름 묻은 플라스틱"
+      ],
       "reviewStatus": "needs_local_review",
-      "startNodeId": "clean",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "container",
+      "recognitionKeywords": [
+        "food container",
+        "plastic container",
+        "takeout container",
+        "food tray",
+        "bowl"
+      ],
+      "startNodeId": "material",
       "nodes": [
-        {"id":"clean", "prompt":"내용물을 비우고 음식물·기름 등의 이물질을 제거한 플라스틱 용기인가요?", "choices":[{"label":"네, 이물질을 제거했어요", "nextNodeId":"recycle"},{"label":"아직 음식물이나 기름이 남았어요", "nextNodeId":"can_clean"}]},
-        {"id":"can_clean", "prompt":"세척해서 이물질을 제거할 수 있나요?", "choices":[{"label":"네, 세척할 수 있어요", "nextNodeId":"wash_first"},{"label":"아니요, 오염을 제거하기 어려워요", "nextNodeId":"general"},{"label":"재질이나 상태를 잘 모르겠어요", "nextNodeId":"check"}]},
-        {"id":"recycle", "result":{"destination":"플라스틱류 분리배출", "steps":["용기의 분리배출 표시를 확인하세요.","뚜껑·부속품 중 다른 재질은 분리하고, 재질별로 배출하세요."],"explanation":"이 예시는 플라스틱 용기에 관한 것입니다. 음식·국물은 별도로 처리해야 합니다.","sourceUrls":["https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"]}},
-        {"id":"wash_first", "result":{"destination":"이물질 제거 후 재질별 분리배출", "steps":["남은 음식과 국물을 용기에서 분리해 주세요.","헹구는 등 이물질을 제거해 주세요.","분리배출 표시를 확인하고 다른 재질의 부속품을 분리해 배출하세요."],"explanation":"음식 브랜드가 같아도 용기의 재질과 오염 상태에 따라 확인이 필요합니다.","sourceUrls":["https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"]}},
-        {"id":"general", "result":{"destination":"오염 제거가 어려운 용기: 종량제 배출 검토", "steps":["남은 음식과 국물을 용기에서 분리해 주세요.","이물질 제거가 어려운 용기의 배출 방법을 공식 안내에서 확인하세요."],"explanation":"개발용 조건 분기 예시입니다. 해당 용기와 성북구의 최신 안내를 대조한 후 정식 데이터로 확정해야 합니다.","sourceUrls":["https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do"]}},
-        {"id":"check", "result":{"destination":"재질·오염 상태 추가 확인", "steps":["용기의 분리배출 표시를 확인하세요.","공식 품목사전에서 같은 종류의 용기를 찾아 확인하세요."],"explanation":"확인되지 않은 조건은 추측해서 분류하지 않습니다.","sourceUrls":["https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do"]}}
+        {
+          "id": "material",
+          "prompt": "플라스틱 용기가 맞나요? 바닥의 재질·분리배출 표시를 확인해 주세요.",
+          "choices": [
+            {
+              "label": "네, 플라스틱 용기가 맞아요",
+              "nextNodeId": "clean"
+            },
+            {
+              "label": "다른 재질이거나 정확히 모르겠어요",
+              "nextNodeId": "check"
+            }
+          ]
+        },
+        {
+          "id": "clean",
+          "prompt": "플라스틱 용기에서 남은 음식·국물을 비우고 기름과 찌꺼기를 제거했나요?",
+          "choices": [
+            {
+              "label": "네, 이물질을 제거했어요",
+              "nextNodeId": "recycle"
+            },
+            {
+              "label": "아직 음식물이나 기름이 남았어요",
+              "nextNodeId": "can_clean"
+            }
+          ]
+        },
+        {
+          "id": "can_clean",
+          "prompt": "붉은 기름과 음식물 찌꺼기를 세척해서 제거할 수 있나요?",
+          "choices": [
+            {
+              "label": "네, 세척할 수 있어요",
+              "nextNodeId": "wash_first"
+            },
+            {
+              "label": "아니요, 오염을 제거하기 어려워요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "재질이나 상태를 잘 모르겠어요",
+              "nextNodeId": "check"
+            }
+          ]
+        },
+        {
+          "id": "recycle",
+          "result": {
+            "destination": "플라스틱류",
+            "steps": [
+              "용기의 분리배출 표시를 확인해 주세요.",
+              "떼어지는 뚜껑·밀봉 비닐·라벨을 재질별로 나눠 주세요.",
+              "물기를 털고 플라스틱류로 배출해 주세요."
+            ],
+            "explanation": "빨간 자국만으로 결정하지 않아요. 남은 음식물과 기름을 제거했는지 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "wash_first",
+          "result": {
+            "destination": "세척 후 플라스틱류",
+            "steps": [
+              "남은 음식·국물은 용기와 따로 처리해 주세요.",
+              "헹구거나 닦아서 표면의 기름·음식물 찌꺼기를 제거해 주세요.",
+              "떼어지는 밀봉 비닐·라벨·다른 재질 뚜껑을 분리해 주세요.",
+              "분리배출 표시를 확인한 뒤 플라스틱류로 배출해 주세요."
+            ],
+            "explanation": "사진 인식은 용기 후보를 찾고, 세척 가능 여부는 직접 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "오염 제거가 어려운 용기: 일반 종량제봉투",
+            "steps": [
+              "음식물과 국물은 용기에서 먼저 분리해 주세요.",
+              "이물질을 제거하기 어려운 용기는 성북구 안내에 따라 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "단순 변색과 남아 있는 음식물·기름 오염을 구분해요. 재질이 다른 용기는 해당 재질 안내를 따라요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "용기 사진만으로 재질이나 씻어지는 정도를 확정할 수 없어요. 바닥 표시와 실제 상태를 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
       ]
     },
     {
       "id": "chicken_bone",
       "name": "치킨 뼈",
-      "aliases": ["닭뼈", "치킨뼈", "닭 뼈"],
+      "aliases": [
+        "닭뼈",
+        "치킨뼈",
+        "닭 뼈"
+      ],
       "reviewStatus": "needs_local_review",
+      "sourceScope": "seoul",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "food",
+      "recognitionKeywords": [
+        "chicken bone",
+        "bone"
+      ],
       "startNodeId": "result",
-      "nodes": [{"id":"result", "result":{"destination":"일반쓰레기", "steps":["남아 있는 살과 뼈를 구분해 주세요.","뼈는 음식물쓰레기에 섞지 않고 종량제봉투로 배출하는 기준을 확인하세요."],"explanation":"서울시 음식물쓰레기 분리배출 표준안 소개에 근거한 개발용 예시입니다.","sourceUrls":["https://1in.seoul.go.kr/front/board/boardContentsView.do?board_id=9&contents_id=8db9ef985ddc4d589554c602a258f761&menu_id=e43e9996deae49ac9b17aaec9e7e3282"]}}]
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "남아 있는 살과 뼈를 구분해 주세요.",
+              "뼈는 음식물쓰레기에 섞지 말고 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "육류 뼈는 음식물 처리에 적합하지 않아요.",
+            "sourceUrls": [
+              "https://mediahub.seoul.go.kr/archives/2004122",
+              "https://www.kca.go.kr/webzine/board/view?div=kca_2202&linkId=393&menuId=MENU00322"
+            ]
+          }
+        }
+      ]
     },
     {
       "id": "peach_pit",
       "name": "복숭아 씨",
-      "aliases": ["복숭아씨", "복숭아 씨앗"],
+      "aliases": [
+        "복숭아씨",
+        "복숭아 씨앗"
+      ],
       "reviewStatus": "needs_local_review",
+      "sourceScope": "seoul",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "food",
+      "recognitionKeywords": [
+        "peach pit",
+        "peach stone"
+      ],
       "startNodeId": "result",
-      "nodes": [{"id":"result", "result":{"destination":"일반쓰레기", "steps":["남은 과육과 딱딱한 씨를 구분해 주세요.","씨는 음식물쓰레기에 섞지 않고 종량제봉투로 배출하는 기준을 확인하세요."],"explanation":"복숭아 씨의 예시이며 모든 과일 씨에 일괄 적용하는 규칙은 아닙니다.","sourceUrls":["https://1in.seoul.go.kr/front/board/boardContentsView.do?board_id=9&contents_id=8db9ef985ddc4d589554c602a258f761&menu_id=e43e9996deae49ac9b17aaec9e7e3282"]}}]
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "과육과 단단한 씨를 분리해 주세요.",
+              "복숭아 씨는 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "복숭아의 단단한 씨에 대한 안내예요. 모든 과일 씨에 같은 규칙을 적용하지 않아요.",
+            "sourceUrls": [
+              "https://mediahub.seoul.go.kr/archives/2004122",
+              "https://www.kca.go.kr/webzine/board/view?div=kca_2202&linkId=393&menuId=MENU00322"
+            ]
+          }
+        }
+      ]
     },
     {
       "id": "clothing",
       "name": "옷",
-      "aliases": ["의류", "티셔츠", "바지", "헌옷"],
+      "aliases": [
+        "의류",
+        "티셔츠",
+        "바지",
+        "헌옷",
+        "셔츠",
+        "재킷"
+      ],
       "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "clothing",
+      "recognitionKeywords": [
+        "clothing",
+        "shirt",
+        "t-shirt",
+        "jacket",
+        "pants",
+        "garment"
+      ],
       "startNodeId": "reuse",
       "nodes": [
-        {"id":"reuse", "prompt":"다른 사람이 다시 입을 수 있는 상태인가요?", "choices":[{"label":"네, 다시 입을 수 있어요", "nextNodeId":"reuse_result"},{"label":"아니요 / 상태가 애매해요", "nextNodeId":"check"}]},
-        {"id":"reuse_result", "result":{"destination":"재사용·의류 수거 안내 확인", "steps":["기부·재사용 가능 여부를 살펴보세요.","의류 수거함을 이용한다면 그 수거함의 수거 대상과 배출 방법을 확인하세요."],"explanation":"수거함마다 대상이 다를 수 있으므로 침구류 등을 옷과 동일하게 처리하지 않도록 확인합니다.","sourceUrls":["https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do"]}},
-        {"id":"check", "result":{"destination":"의류 종류와 손상·오염 상태 확인", "steps":["정확한 품목과 오염·손상 상태를 확인하세요.","성북구 공식 안내 또는 품목사전에서 배출 방법을 확인하세요."],"explanation":"정식 데이터 구축 시 성북구의 품목별 예외를 추가할 자리입니다.","sourceUrls":["https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do"]}}
+        {
+          "id": "reuse",
+          "prompt": "세탁 후 다른 사람이 다시 입을 수 있는 상태인가요?",
+          "choices": [
+            {
+              "label": "네, 다시 입을 수 있어요",
+              "nextNodeId": "reuse_result"
+            },
+            {
+              "label": "심하게 오염되거나 훼손됐어요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "옷이 아니라 이불·베개·인형이에요",
+              "nextNodeId": "check"
+            }
+          ]
+        },
+        {
+          "id": "reuse_result",
+          "result": {
+            "destination": "재사용 또는 의류 수거함",
+            "steps": [
+              "기부·중고 나눔 등 재사용을 먼저 고려해 주세요.",
+              "배출할 때는 젖지 않게 모아 해당 의류 수거함의 수거 대상에 맞춰 넣어 주세요."
+            ],
+            "explanation": "입을 수 있는 의류를 대상으로 해요. 침구·인형·매트는 수거 대상이 다를 수 있어요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "재사용 어려운 옷: 종량제 또는 대형폐기물 확인",
+            "steps": [
+              "의류 수거함에 넣지 말고 성북구 배출 기준을 확인해 주세요.",
+              "봉투에 담을 수 있는 의류는 종량제 배출을 확인하고, 크거나 부피가 큰 제품은 대형폐기물 기준을 확인해 주세요."
+            ],
+            "explanation": "심한 오염·훼손으로 다시 입기 어려운 옷은 재사용 의류와 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "이불·베개·인형·매트는 의류와 같은 규칙으로 배출하지 않아요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
       ]
     },
     {
       "id": "small_appliance",
       "name": "소형 폐가전",
-      "aliases": ["드라이기", "헤어드라이어", "토스터", "소형 가전"],
+      "aliases": [
+        "드라이기",
+        "헤어드라이어",
+        "토스터",
+        "소형 가전",
+        "전기주전자",
+        "이어폰",
+        "멀티탭"
+      ],
       "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "electronics",
+      "recognitionKeywords": [
+        "hair dryer",
+        "toaster",
+        "headphones",
+        "earphones",
+        "electric kettle",
+        "appliance"
+      ],
       "startNodeId": "result",
-      "nodes": [{"id":"result", "result":{"destination":"성북구 소형 폐가전 수거 안내 확인", "steps":["제품 종류와 크기를 확인하세요.","공동주택과 일반주택의 배출 안내를 구분해 확인하세요.","성북구 공식 안내에서 해당 제품의 수거 경로를 확인하세요."],"explanation":"여러 가전을 하나의 확정된 배출 규칙으로 처리하지 않도록 공식 안내를 연결하는 예시입니다.","sourceUrls":["https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"]}}]
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "소형 폐가전 전용 수거",
+            "steps": [
+              "분리하기 쉬운 전지는 꺼내 전지 수거함으로 배출해 주세요. 분리할 수 없으면 제품 그대로 배출해요.",
+              "가까운 소형 폐가전 전용 수거함 또는 성북구가 안내하는 수거 경로를 이용해 주세요.",
+              "방문수거를 이용하려면 품목·수량 등 서비스 기준을 확인해 주세요."
+            ],
+            "explanation": "전기·전지가 들어가는 제품은 일반 플라스틱이나 종량제봉투에 섞지 않아요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "beverage_can",
+      "name": "음료·맥주 캔",
+      "aliases": [
+        "음료캔",
+        "콜라캔",
+        "맥주캔",
+        "캔커피",
+        "에너지드링크캔",
+        "알루미늄캔"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "can",
+      "recognitionKeywords": [
+        "soda can",
+        "beverage can",
+        "beer can",
+        "aluminum can",
+        "tin can",
+        "can"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "캔류",
+            "steps": [
+              "내용물을 비우고 헹궈 주세요.",
+              "분리되는 플라스틱 뚜껑 등 다른 재질을 떼어 주세요.",
+              "캔류 수거함에 배출해 주세요."
+            ],
+            "explanation": "음식·음료가 담겼던 금속캔 안내예요. 가스·스프레이·페인트 용기는 용도별 안내를 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=617",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "food_can",
+      "name": "통조림·참치·햄 캔",
+      "aliases": [
+        "통조림",
+        "참치캔",
+        "스팸캔",
+        "햄캔",
+        "골뱅이캔",
+        "식료품캔"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "can",
+      "recognitionKeywords": [
+        "food can",
+        "tuna can",
+        "tin",
+        "canned food"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "캔류",
+            "steps": [
+              "남은 음식과 기름을 따로 비워 주세요.",
+              "캔 안에 남은 내용물을 헹구고 다른 재질 뚜껑을 분리해 주세요.",
+              "날카로운 가장자리를 조심해 캔류로 배출해 주세요."
+            ],
+            "explanation": "뚜껑이 금속이면 캔류로, 분리되는 플라스틱 뚜껑은 해당 재질로 나눠요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=85",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "aerosol_can",
+      "name": "부탄가스·스프레이 캔",
+      "aliases": [
+        "부탄캔",
+        "살충제 캔",
+        "에어로졸",
+        "헤어스프레이통"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "can",
+      "recognitionKeywords": [
+        "aerosol can",
+        "spray can",
+        "gas can"
+      ],
+      "startNodeId": "empty",
+      "nodes": [
+        {
+          "id": "empty",
+          "prompt": "제품 사용 안내에 따라 내용물을 모두 사용한 빈 용기인가요?",
+          "choices": [
+            {
+              "label": "네, 내용물이 없는 빈 용기예요",
+              "nextNodeId": "empty_can"
+            },
+            {
+              "label": "남아 있거나 잘 모르겠어요",
+              "nextNodeId": "residue"
+            }
+          ]
+        },
+        {
+          "id": "empty_can",
+          "result": {
+            "destination": "빈 금속캔: 캔류 배출 기준 확인",
+            "steps": [
+              "제품의 배출 표시와 성북구 수거 안내를 확인해 주세요.",
+              "분리되는 플라스틱 뚜껑은 따로 나누고 빈 금속 용기를 캔류로 배출해 주세요."
+            ],
+            "explanation": "음료캔과 달리 용도와 잔여 내용물을 먼저 확인해요. 임의로 구멍을 뚫거나 찌그러뜨리는 안내는 하지 않아요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "residue",
+          "result": {
+            "destination": "내용물이 남은 가스·화학제품: 배출 전 문의",
+            "steps": [
+              "일반 캔류나 종량제봉투에 바로 섞지 말아 주세요.",
+              "제품명과 잔여 내용물 상태를 확인한 뒤 성북구 담당 부서 또는 제조사 안내에 따라 배출해 주세요."
+            ],
+            "explanation": "내용물이 남은 인화성·화학제품 용기는 빈 음료캔과 처리 방법이 달라요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "metal_cap",
+      "name": "금속 병뚜껑",
+      "aliases": [
+        "왕관뚜껑",
+        "유리병 금속뚜껑",
+        "맥주병뚜껑"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "small_item",
+      "recognitionKeywords": [
+        "metal bottle cap",
+        "crown cap"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "캔류·고철류 수거 기준 확인",
+            "steps": [
+              "유리병에서 금속 뚜껑을 분리해 주세요.",
+              "이물질을 제거하고 흩어지지 않게 모아 금속류 수거 방식에 맞춰 배출해 주세요."
+            ],
+            "explanation": "뚜껑의 재질이 금속인지 먼저 확인해요. 플라스틱 뚜껑과 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "glass_bottle",
+      "name": "음료·식품 유리병",
+      "aliases": [
+        "주스병",
+        "잼병",
+        "드링크병",
+        "유리병",
+        "소스 유리병"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "glass",
+      "recognitionKeywords": [
+        "glass bottle",
+        "jar",
+        "glass jar"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "유리병류",
+            "steps": [
+              "내용물을 비우고 헹궈 주세요.",
+              "분리되는 뚜껑은 재질별로 따로 배출해 주세요.",
+              "깨뜨리지 않고 유리병류 수거함에 배출해 주세요."
+            ],
+            "explanation": "유리병 안내예요. 내열유리·거울·도자기·깨진 유리는 유리병류와 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "deposit_glass_bottle",
+      "name": "보증금 표시가 있는 소주·맥주병",
+      "aliases": [
+        "소주병",
+        "맥주병",
+        "빈용기보증금병"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "glass",
+      "recognitionKeywords": [
+        "beer bottle",
+        "soju bottle"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "판매점 반납·보증금 환급",
+            "steps": [
+              "빈용기보증금 표시가 있는지 확인해 주세요.",
+              "내용물을 비우고 깨뜨리지 않은 상태로 소매점 등 반납처에 가져가 주세요."
+            ],
+            "explanation": "보증금 대상 병은 재사용을 위해 회수해요. 모든 유리병이 보증금 대상인 것은 아니에요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "broken_glass",
+      "name": "깨진 유리·유리조각",
+      "aliases": [
+        "깨진 병",
+        "유리 파편",
+        "깨진 유리컵"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "glass",
+      "recognitionKeywords": [
+        "broken glass",
+        "glass shards"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "성북구 불연성 폐기물 기준 확인",
+            "steps": [
+              "다치지 않도록 종이 등으로 충분히 감싸 파편이 흩어지지 않게 해 주세요.",
+              "포장에 깨진 유리가 들어 있음을 표시하고 성북구의 봉투·특수마대 기준을 확인해 배출해 주세요."
+            ],
+            "explanation": "깨진 유리와 유리병은 같은 수거함에 넣지 않아요. 배출 봉투는 지역 기준을 따라요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ceramic",
+      "name": "도자기·사기 그릇",
+      "aliases": [
+        "머그컵",
+        "사기그릇",
+        "도자기 접시",
+        "찻잔",
+        "화분(도자기)"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "other",
+      "recognitionKeywords": [
+        "ceramic",
+        "porcelain",
+        "ceramic mug",
+        "pottery"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "불연성 폐기물·대형폐기물 기준 확인",
+            "steps": [
+              "깨진 부분이 있으면 다치지 않도록 포장해 주세요.",
+              "성북구의 특수마대 또는 대형폐기물 배출 기준에 맞춰 배출해 주세요."
+            ],
+            "explanation": "도자기·사기·내열유리는 유리병류 재활용과 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "cardboard_box",
+      "name": "택배 골판지 상자",
+      "aliases": [
+        "택배상자",
+        "박스",
+        "골판지",
+        "종이박스"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "paper",
+      "recognitionKeywords": [
+        "cardboard box",
+        "carton",
+        "shipping box",
+        "box"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "골판지류",
+            "steps": [
+              "테이프·택배송장·철핀 등 종이가 아닌 부분을 떼어 주세요.",
+              "상자를 접어 부피를 줄이고 다른 종이류와 구분해 배출해 주세요."
+            ],
+            "explanation": "안쪽에 알루미늄박·비닐이 붙어 분리되지 않는 보냉 상자는 별도 확인이 필요해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/typeItemHtml.do",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "newspaper",
+      "name": "신문지",
+      "aliases": [
+        "신문",
+        "신문묶음"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "paper",
+      "recognitionKeywords": [
+        "newspaper"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "종이류",
+            "steps": [
+              "비닐·오염된 종이를 빼고 신문지를 펴서 모아 주세요.",
+              "젖지 않게 묶거나 정리해 종이류로 배출해 주세요."
+            ],
+            "explanation": "이물질과 물기를 줄여 종이끼리 모아요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/typeItemHtml.do",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "book",
+      "name": "책·책자",
+      "aliases": [
+        "책",
+        "잡지",
+        "책자"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "paper",
+      "recognitionKeywords": [
+        "book",
+        "magazine",
+        "paperback"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "종이류",
+            "steps": [
+              "비닐 표지와 분리되는 종이가 아닌 부속품을 제거해 주세요.",
+              "깨끗한 종이 부분을 모아 종이류로 배출해 주세요."
+            ],
+            "explanation": "일반 종이책 안내예요. 전자 부품이 있는 책이나 재질이 섞인 표지는 따로 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/typeItemHtml.do",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "notebook",
+      "name": "공책·스프링 노트",
+      "aliases": [
+        "공책",
+        "노트",
+        "스프링노트",
+        "달력"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "paper",
+      "recognitionKeywords": [
+        "notebook",
+        "spiral notebook",
+        "calendar"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "종이류",
+            "steps": [
+              "스프링·비닐 표지 등 다른 재질을 가능한 분리해 주세요.",
+              "종이 부분을 종이류로 모아 배출해 주세요."
+            ],
+            "explanation": "스프링과 종이를 함께 넣지 않도록 나눠요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/typeItemHtml.do",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "office_paper",
+      "name": "복사지·일반 종이",
+      "aliases": [
+        "A4",
+        "복사지",
+        "프린트물",
+        "종이",
+        "출력물"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "paper",
+      "recognitionKeywords": [
+        "paper",
+        "sheet of paper",
+        "document"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "종이류",
+            "steps": [
+              "비닐·플라스틱 파일·접착성 부속품을 빼 주세요.",
+              "젖거나 오염되지 않은 종이를 모아 종이류로 배출해 주세요."
+            ],
+            "explanation": "감열지 영수증, 양면 코팅지, 사진용지와 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/typeItemHtml.do",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "milk_carton",
+      "name": "우유팩",
+      "aliases": [
+        "우유팩",
+        "일반팩",
+        "우유 종이팩"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "paper",
+      "recognitionKeywords": [
+        "milk carton",
+        "paper carton"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "종이팩 전용 수거",
+            "steps": [
+              "내용물을 비우고 헹군 뒤 말려 주세요.",
+              "빨대·비닐 등 다른 재질을 제거하고 펼치거나 압착해 주세요.",
+              "종이팩 수거함에 배출해 주세요. 수거함이 없다면 일반 종이와 구분해 묶어서 해당 수거 방식에 맞춰 배출해 주세요."
+            ],
+            "explanation": "일반 종이와 종이팩을 구분해요. 수거함에 일반팩·멸균팩 구분 표시가 있으면 그 표시를 따라요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=529",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "aseptic_carton",
+      "name": "두유·주스 멸균팩",
+      "aliases": [
+        "두유팩",
+        "주스팩",
+        "멸균팩",
+        "소주팩"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "paper",
+      "recognitionKeywords": [
+        "juice carton",
+        "paper carton"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "종이팩 전용 수거",
+            "steps": [
+              "내용물을 비우고 헹군 뒤 말려 주세요.",
+              "빨대·비닐 등 다른 재질을 제거하고 펼치거나 압착해 주세요.",
+              "종이팩 수거함에 배출해 주세요. 수거함이 없다면 일반 종이와 구분해 묶어서 해당 수거 방식에 맞춰 배출해 주세요."
+            ],
+            "explanation": "일반 종이와 종이팩을 구분해요. 수거함에 일반팩·멸균팩 구분 표시가 있으면 그 표시를 따라요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=529",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "paper_cup",
+      "name": "종이컵",
+      "aliases": [
+        "일회용 종이컵",
+        "커피 종이컵"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "paper",
+      "recognitionKeywords": [
+        "paper cup",
+        "coffee cup"
+      ],
+      "startNodeId": "condition",
+      "nodes": [
+        {
+          "id": "condition",
+          "prompt": "내용물을 제거할 수 있고, 양면 코팅으로 찢어지지 않는 컵은 아닌가요?",
+          "choices": [
+            {
+              "label": "네, 헹궈서 깨끗하게 만들 수 있어요",
+              "nextNodeId": "paper"
+            },
+            {
+              "label": "오염을 제거하기 어렵거나 양면 코팅이에요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "잘 모르겠어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "paper",
+          "result": {
+            "destination": "깨끗한 종이컵: 종이류 기준에 따라 배출",
+            "steps": [
+              "내용물을 비우고 헹궈 주세요.",
+              "뚜껑·빨대·홀더는 재질별로 나눠 주세요.",
+              "종이컵 전용 수거가 있으면 이용하고, 없으면 종이류 배출 기준에 맞춰 모아 주세요."
+            ],
+            "explanation": "보증금 대상 1회용컵은 반납처에 반환할 수 있어요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/typeItemHtml.do",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "컵의 남은 내용물을 따로 비워 주세요.",
+              "오염 제거가 어렵거나 양면 코팅된 종이컵은 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "모든 종이컵을 무조건 같은 방식으로 처리하지 않고 오염·코팅 상태를 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/typeItemHtml.do",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "사진만으로 재질과 용도를 확정하기 어려워요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "receipt",
+      "name": "감열지 영수증",
+      "aliases": [
+        "영수증",
+        "카드 영수증",
+        "감열지",
+        "로또용지"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "paper",
+      "recognitionKeywords": [
+        "receipt",
+        "thermal receipt"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "종이류 수거함에 섞지 말고 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "감열지 영수증은 일반 종이와 달라요. 일반 인쇄용지로 된 문서는 재질을 따로 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=730"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "pizza_box",
+      "name": "기름 묻은 피자·치킨 종이상자",
+      "aliases": [
+        "피자박스",
+        "치킨박스",
+        "기름 묻은 종이",
+        "음식 포장 종이상자"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "paper",
+      "recognitionKeywords": [
+        "pizza box",
+        "greasy cardboard",
+        "food box"
+      ],
+      "startNodeId": "condition",
+      "nodes": [
+        {
+          "id": "condition",
+          "prompt": "기름·음식물에 오염된 부분을 깨끗한 종이 부분과 나눌 수 있나요?",
+          "choices": [
+            {
+              "label": "네, 깨끗한 부분을 나눌 수 있어요",
+              "nextNodeId": "separate"
+            },
+            {
+              "label": "전체가 오염되었거나 분리하기 어려워요",
+              "nextNodeId": "general"
+            }
+          ]
+        },
+        {
+          "id": "separate",
+          "result": {
+            "destination": "깨끗한 종이는 종이류 · 오염 부분은 종량제",
+            "steps": [
+              "음식물과 비닐 속지를 따로 제거해 주세요.",
+              "오염된 부분을 나누고 깨끗한 골판지는 접어 배출해 주세요.",
+              "기름·음식물 오염이 남은 종이는 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "종이상자라도 오염 여부에 따라 나눠 배출해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.wasteguide.or.kr/front/dischargeMethod/typeItemHtml.do"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "남은 음식물은 먼저 따로 분리해 주세요.",
+              "기름·음식물에 오염되어 재활용하기 어려운 종이는 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "재활용 종이에 음식물·기름이 섞이지 않도록 해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.wasteguide.or.kr/front/dischargeMethod/typeItemHtml.do"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "coated_paper",
+      "name": "양면 코팅지·사진용지",
+      "aliases": [
+        "코팅지",
+        "사진용지",
+        "방수 포스터",
+        "종이호일",
+        "택배송장"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "paper",
+      "recognitionKeywords": [
+        "laminated paper",
+        "photo paper",
+        "parchment paper"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "종이류와 구분해 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "양면 코팅지·사진용지·종이호일·택배송장은 일반 종이 재활용과 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.wasteguide.or.kr/front/dischargeMethod/typeItemHtml.do"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "tissue",
+      "name": "사용한 휴지·키친타월",
+      "aliases": [
+        "휴지",
+        "키친타월",
+        "화장지",
+        "냅킨",
+        "핸드타월"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "paper",
+      "recognitionKeywords": [
+        "tissue",
+        "paper towel",
+        "napkin"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "사용한 휴지와 기름·음식물을 닦은 키친타월은 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "종이처럼 보여도 사용한 위생용 종이는 재활용 종이와 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "plastic_cup",
+      "name": "카페 일회용 플라스틱 컵",
+      "aliases": [
+        "플라스틱컵",
+        "아이스커피 컵",
+        "테이크아웃 컵"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "container",
+      "recognitionKeywords": [
+        "plastic cup",
+        "iced coffee cup",
+        "cup"
+      ],
+      "startNodeId": "clean",
+      "nodes": [
+        {
+          "id": "clean",
+          "prompt": "분리배출 표시가 있는 플라스틱 용기이고, 내용물과 이물질을 제거했나요?",
+          "choices": [
+            {
+              "label": "네, 재질을 확인했고 깨끗해요",
+              "nextNodeId": "recycle"
+            },
+            {
+              "label": "아직 음식물이나 이물질이 있어요",
+              "nextNodeId": "can_clean"
+            },
+            {
+              "label": "재질이나 용도를 잘 모르겠어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "can_clean",
+          "prompt": "헹구거나 닦아서 음식물·기름 등의 이물질을 제거할 수 있나요?",
+          "choices": [
+            {
+              "label": "네, 제거할 수 있어요",
+              "nextNodeId": "wash_first"
+            },
+            {
+              "label": "아니요, 오염이 남아요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "상태가 애매해요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "recycle",
+          "result": {
+            "destination": "플라스틱류",
+            "steps": [
+              "남은 내용물을 따로 비우고 음식물·기름을 헹궈 제거해 주세요.",
+              "떼어지는 라벨·밀봉 필름과 다른 재질 부속품을 분리해 주세요.",
+              "플라스틱류로 배출해 주세요. 생수·음료 투명페트병 수거함에는 넣지 않아요."
+            ],
+            "explanation": "겉모양보다 용기의 재질과 남아 있는 이물질을 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=112",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "wash_first",
+          "result": {
+            "destination": "세척 후 플라스틱류",
+            "steps": [
+              "남은 내용물을 따로 비우고 음식물·기름을 헹궈 제거해 주세요.",
+              "떼어지는 라벨·밀봉 필름과 다른 재질 부속품을 분리해 주세요.",
+              "플라스틱류로 배출해 주세요. 생수·음료 투명페트병 수거함에는 넣지 않아요."
+            ],
+            "explanation": "이물질을 제거한 뒤 재질에 맞춰 배출해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=112",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "오염 제거가 어려운 용기: 일반 종량제봉투",
+            "steps": [
+              "내용물은 용기에서 따로 분리해 주세요.",
+              "이물질을 제거하기 어려운 용기는 성북구 기준을 확인해 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "단순히 색이 남았는지보다 음식물·기름이 실제로 남아 있는지 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=112",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "사진만으로 재질과 용도를 확정하기 어려워요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "yogurt_container",
+      "name": "요거트 플라스틱 용기",
+      "aliases": [
+        "요거트통",
+        "요구르트병",
+        "요거트 용기"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "container",
+      "recognitionKeywords": [
+        "yogurt cup",
+        "yogurt container"
+      ],
+      "startNodeId": "clean",
+      "nodes": [
+        {
+          "id": "clean",
+          "prompt": "분리배출 표시가 있는 플라스틱 용기이고, 내용물과 이물질을 제거했나요?",
+          "choices": [
+            {
+              "label": "네, 재질을 확인했고 깨끗해요",
+              "nextNodeId": "recycle"
+            },
+            {
+              "label": "아직 음식물이나 이물질이 있어요",
+              "nextNodeId": "can_clean"
+            },
+            {
+              "label": "재질이나 용도를 잘 모르겠어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "can_clean",
+          "prompt": "헹구거나 닦아서 음식물·기름 등의 이물질을 제거할 수 있나요?",
+          "choices": [
+            {
+              "label": "네, 제거할 수 있어요",
+              "nextNodeId": "wash_first"
+            },
+            {
+              "label": "아니요, 오염이 남아요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "상태가 애매해요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "recycle",
+          "result": {
+            "destination": "플라스틱류",
+            "steps": [
+              "남은 내용물을 따로 비우고 음식물·기름을 헹궈 제거해 주세요.",
+              "떼어지는 라벨·밀봉 필름과 다른 재질 부속품을 분리해 주세요.",
+              "플라스틱류로 배출해 주세요. 생수·음료 투명페트병 수거함에는 넣지 않아요."
+            ],
+            "explanation": "겉모양보다 용기의 재질과 남아 있는 이물질을 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=74"
+            ]
+          }
+        },
+        {
+          "id": "wash_first",
+          "result": {
+            "destination": "세척 후 플라스틱류",
+            "steps": [
+              "남은 내용물을 따로 비우고 음식물·기름을 헹궈 제거해 주세요.",
+              "떼어지는 라벨·밀봉 필름과 다른 재질 부속품을 분리해 주세요.",
+              "플라스틱류로 배출해 주세요. 생수·음료 투명페트병 수거함에는 넣지 않아요."
+            ],
+            "explanation": "이물질을 제거한 뒤 재질에 맞춰 배출해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=74"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "오염 제거가 어려운 용기: 일반 종량제봉투",
+            "steps": [
+              "내용물은 용기에서 따로 분리해 주세요.",
+              "이물질을 제거하기 어려운 용기는 성북구 기준을 확인해 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "단순히 색이 남았는지보다 음식물·기름이 실제로 남아 있는지 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=74",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "사진만으로 재질과 용도를 확정하기 어려워요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "instant_rice_container",
+      "name": "즉석밥 플라스틱 용기",
+      "aliases": [
+        "햇반용기",
+        "즉석밥 용기",
+        "밥 플라스틱 용기"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "container",
+      "recognitionKeywords": [
+        "rice container",
+        "plastic food tray"
+      ],
+      "startNodeId": "clean",
+      "nodes": [
+        {
+          "id": "clean",
+          "prompt": "분리배출 표시가 있는 플라스틱 용기이고, 내용물과 이물질을 제거했나요?",
+          "choices": [
+            {
+              "label": "네, 재질을 확인했고 깨끗해요",
+              "nextNodeId": "recycle"
+            },
+            {
+              "label": "아직 음식물이나 이물질이 있어요",
+              "nextNodeId": "can_clean"
+            },
+            {
+              "label": "재질이나 용도를 잘 모르겠어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "can_clean",
+          "prompt": "헹구거나 닦아서 음식물·기름 등의 이물질을 제거할 수 있나요?",
+          "choices": [
+            {
+              "label": "네, 제거할 수 있어요",
+              "nextNodeId": "wash_first"
+            },
+            {
+              "label": "아니요, 오염이 남아요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "상태가 애매해요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "recycle",
+          "result": {
+            "destination": "플라스틱류",
+            "steps": [
+              "남은 내용물을 따로 비우고 음식물·기름을 헹궈 제거해 주세요.",
+              "떼어지는 라벨·밀봉 필름과 다른 재질 부속품을 분리해 주세요.",
+              "플라스틱류로 배출해 주세요. 생수·음료 투명페트병 수거함에는 넣지 않아요."
+            ],
+            "explanation": "겉모양보다 용기의 재질과 남아 있는 이물질을 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=98",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "wash_first",
+          "result": {
+            "destination": "세척 후 플라스틱류",
+            "steps": [
+              "남은 내용물을 따로 비우고 음식물·기름을 헹궈 제거해 주세요.",
+              "떼어지는 라벨·밀봉 필름과 다른 재질 부속품을 분리해 주세요.",
+              "플라스틱류로 배출해 주세요. 생수·음료 투명페트병 수거함에는 넣지 않아요."
+            ],
+            "explanation": "이물질을 제거한 뒤 재질에 맞춰 배출해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=98",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "오염 제거가 어려운 용기: 일반 종량제봉투",
+            "steps": [
+              "내용물은 용기에서 따로 분리해 주세요.",
+              "이물질을 제거하기 어려운 용기는 성북구 기준을 확인해 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "단순히 색이 남았는지보다 음식물·기름이 실제로 남아 있는지 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=98",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "사진만으로 재질과 용도를 확정하기 어려워요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "shampoo_bottle",
+      "name": "샴푸·바디워시 플라스틱 용기",
+      "aliases": [
+        "샴푸통",
+        "바디워시통",
+        "린스통",
+        "펌프용기"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "bottle",
+      "recognitionKeywords": [
+        "shampoo bottle",
+        "soap dispenser",
+        "pump bottle"
+      ],
+      "startNodeId": "clean",
+      "nodes": [
+        {
+          "id": "clean",
+          "prompt": "분리배출 표시가 있는 플라스틱 용기이고, 내용물과 이물질을 제거했나요?",
+          "choices": [
+            {
+              "label": "네, 재질을 확인했고 깨끗해요",
+              "nextNodeId": "recycle"
+            },
+            {
+              "label": "아직 음식물이나 이물질이 있어요",
+              "nextNodeId": "can_clean"
+            },
+            {
+              "label": "재질이나 용도를 잘 모르겠어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "can_clean",
+          "prompt": "헹구거나 닦아서 음식물·기름 등의 이물질을 제거할 수 있나요?",
+          "choices": [
+            {
+              "label": "네, 제거할 수 있어요",
+              "nextNodeId": "wash_first"
+            },
+            {
+              "label": "아니요, 오염이 남아요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "상태가 애매해요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "recycle",
+          "result": {
+            "destination": "플라스틱류",
+            "steps": [
+              "남은 내용물을 따로 비우고 음식물·기름을 헹궈 제거해 주세요.",
+              "떼어지는 라벨·밀봉 필름과 다른 재질 부속품을 분리해 주세요.",
+              "금속 스프링이 들어 있는 펌프는 본체와 분리해 재질·제품 안내에 맞춰 처리해 주세요.",
+              "플라스틱류로 배출해 주세요. 생수·음료 투명페트병 수거함에는 넣지 않아요."
+            ],
+            "explanation": "겉모양보다 용기의 재질과 남아 있는 이물질을 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "wash_first",
+          "result": {
+            "destination": "세척 후 플라스틱류",
+            "steps": [
+              "남은 내용물을 따로 비우고 음식물·기름을 헹궈 제거해 주세요.",
+              "떼어지는 라벨·밀봉 필름과 다른 재질 부속품을 분리해 주세요.",
+              "금속 스프링이 들어 있는 펌프는 본체와 분리해 재질·제품 안내에 맞춰 처리해 주세요.",
+              "플라스틱류로 배출해 주세요. 생수·음료 투명페트병 수거함에는 넣지 않아요."
+            ],
+            "explanation": "이물질을 제거한 뒤 재질에 맞춰 배출해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "오염 제거가 어려운 용기: 일반 종량제봉투",
+            "steps": [
+              "내용물은 용기에서 따로 분리해 주세요.",
+              "이물질을 제거하기 어려운 용기는 성북구 기준을 확인해 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "단순히 색이 남았는지보다 음식물·기름이 실제로 남아 있는지 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "사진만으로 재질과 용도를 확정하기 어려워요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "detergent_bottle",
+      "name": "세제 플라스틱 용기",
+      "aliases": [
+        "세제통",
+        "세탁세제통",
+        "주방세제통"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "bottle",
+      "recognitionKeywords": [
+        "detergent bottle",
+        "cleaning bottle"
+      ],
+      "startNodeId": "clean",
+      "nodes": [
+        {
+          "id": "clean",
+          "prompt": "분리배출 표시가 있는 플라스틱 용기이고, 내용물과 이물질을 제거했나요?",
+          "choices": [
+            {
+              "label": "네, 재질을 확인했고 깨끗해요",
+              "nextNodeId": "recycle"
+            },
+            {
+              "label": "아직 음식물이나 이물질이 있어요",
+              "nextNodeId": "can_clean"
+            },
+            {
+              "label": "재질이나 용도를 잘 모르겠어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "can_clean",
+          "prompt": "헹구거나 닦아서 음식물·기름 등의 이물질을 제거할 수 있나요?",
+          "choices": [
+            {
+              "label": "네, 제거할 수 있어요",
+              "nextNodeId": "wash_first"
+            },
+            {
+              "label": "아니요, 오염이 남아요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "상태가 애매해요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "recycle",
+          "result": {
+            "destination": "플라스틱류",
+            "steps": [
+              "남은 내용물을 따로 비우고 음식물·기름을 헹궈 제거해 주세요.",
+              "떼어지는 라벨·밀봉 필름과 다른 재질 부속품을 분리해 주세요.",
+              "플라스틱류로 배출해 주세요. 생수·음료 투명페트병 수거함에는 넣지 않아요."
+            ],
+            "explanation": "겉모양보다 용기의 재질과 남아 있는 이물질을 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "wash_first",
+          "result": {
+            "destination": "세척 후 플라스틱류",
+            "steps": [
+              "남은 내용물을 따로 비우고 음식물·기름을 헹궈 제거해 주세요.",
+              "떼어지는 라벨·밀봉 필름과 다른 재질 부속품을 분리해 주세요.",
+              "플라스틱류로 배출해 주세요. 생수·음료 투명페트병 수거함에는 넣지 않아요."
+            ],
+            "explanation": "이물질을 제거한 뒤 재질에 맞춰 배출해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "오염 제거가 어려운 용기: 일반 종량제봉투",
+            "steps": [
+              "내용물은 용기에서 따로 분리해 주세요.",
+              "이물질을 제거하기 어려운 용기는 성북구 기준을 확인해 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "단순히 색이 남았는지보다 음식물·기름이 실제로 남아 있는지 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "사진만으로 재질과 용도를 확정하기 어려워요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "colored_pet_bottle",
+      "name": "유색·기타 용도 페트병",
+      "aliases": [
+        "유색페트병",
+        "막걸리병",
+        "식용유 페트병",
+        "양념 페트병"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "bottle",
+      "recognitionKeywords": [
+        "colored plastic bottle",
+        "plastic bottle"
+      ],
+      "startNodeId": "clean",
+      "nodes": [
+        {
+          "id": "clean",
+          "prompt": "분리배출 표시가 있는 플라스틱 용기이고, 내용물과 이물질을 제거했나요?",
+          "choices": [
+            {
+              "label": "네, 재질을 확인했고 깨끗해요",
+              "nextNodeId": "recycle"
+            },
+            {
+              "label": "아직 음식물이나 이물질이 있어요",
+              "nextNodeId": "can_clean"
+            },
+            {
+              "label": "재질이나 용도를 잘 모르겠어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "can_clean",
+          "prompt": "헹구거나 닦아서 음식물·기름 등의 이물질을 제거할 수 있나요?",
+          "choices": [
+            {
+              "label": "네, 제거할 수 있어요",
+              "nextNodeId": "wash_first"
+            },
+            {
+              "label": "아니요, 오염이 남아요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "상태가 애매해요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "recycle",
+          "result": {
+            "destination": "플라스틱류",
+            "steps": [
+              "남은 내용물을 따로 비우고 음식물·기름을 헹궈 제거해 주세요.",
+              "떼어지는 라벨·밀봉 필름과 다른 재질 부속품을 분리해 주세요.",
+              "플라스틱류로 배출해 주세요. 생수·음료 투명페트병 수거함에는 넣지 않아요."
+            ],
+            "explanation": "겉모양보다 용기의 재질과 남아 있는 이물질을 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "wash_first",
+          "result": {
+            "destination": "세척 후 플라스틱류",
+            "steps": [
+              "남은 내용물을 따로 비우고 음식물·기름을 헹궈 제거해 주세요.",
+              "떼어지는 라벨·밀봉 필름과 다른 재질 부속품을 분리해 주세요.",
+              "플라스틱류로 배출해 주세요. 생수·음료 투명페트병 수거함에는 넣지 않아요."
+            ],
+            "explanation": "이물질을 제거한 뒤 재질에 맞춰 배출해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "오염 제거가 어려운 용기: 일반 종량제봉투",
+            "steps": [
+              "내용물은 용기에서 따로 분리해 주세요.",
+              "이물질을 제거하기 어려운 용기는 성북구 기준을 확인해 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "단순히 색이 남았는지보다 음식물·기름이 실제로 남아 있는지 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "사진만으로 재질과 용도를 확정하기 어려워요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "plastic_toothpaste_tube",
+      "name": "치약 용기",
+      "aliases": [
+        "치약통",
+        "치약튜브",
+        "플라스틱 튜브"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "container",
+      "recognitionKeywords": [
+        "toothpaste tube",
+        "tube"
+      ],
+      "startNodeId": "mark",
+      "nodes": [
+        {
+          "id": "mark",
+          "prompt": "용기에 플라스틱 분리배출 표시가 있나요?",
+          "choices": [
+            {
+              "label": "네, 플라스틱 표시가 있어요",
+              "nextNodeId": "plastic"
+            },
+            {
+              "label": "종량제 배출 표시이거나 재질을 모르겠어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "plastic",
+          "result": {
+            "destination": "플라스틱류",
+            "steps": [
+              "내용물을 최대한 사용해 비워 주세요.",
+              "헹굴 수 있는 구조라면 최대한 헹구고 플라스틱류로 배출해 주세요."
+            ],
+            "explanation": "튜브는 제품별 재질이 달라서 용기의 분리배출 표시를 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=593",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "사진만으로 재질과 용도를 확정하기 어려워요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "pet_cap",
+      "name": "페트병 뚜껑",
+      "aliases": [
+        "생수병뚜껑",
+        "페트병뚜껑",
+        "플라스틱 병뚜껑"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "small_item",
+      "recognitionKeywords": [
+        "plastic bottle cap",
+        "bottle cap",
+        "cap"
+      ],
+      "startNodeId": "attached",
+      "nodes": [
+        {
+          "id": "attached",
+          "prompt": "생수·음료 투명페트병과 함께 있는 뚜껑인가요?",
+          "choices": [
+            {
+              "label": "네, 병과 함께 있어요",
+              "nextNodeId": "with_bottle"
+            },
+            {
+              "label": "뚜껑만 따로 있어요",
+              "nextNodeId": "cap_only"
+            }
+          ]
+        },
+        {
+          "id": "with_bottle",
+          "result": {
+            "destination": "압착한 투명페트병에 닫아 함께 배출",
+            "steps": [
+              "병의 내용물을 비우고 라벨을 제거해 주세요.",
+              "병을 압착한 뒤 뚜껑을 닫아 투명페트병으로 배출해 주세요."
+            ],
+            "explanation": "투명 생수·음료 페트병은 압착 후 뚜껑을 닫는 안내를 따라요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=122",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "cap_only",
+          "result": {
+            "destination": "플라스틱류 수거 방식 확인",
+            "steps": [
+              "이물질을 제거하고 뚜껑의 재질을 확인해 주세요.",
+              "흩어지지 않게 모아 성북구 플라스틱류 수거 방식에 맞춰 배출해 주세요."
+            ],
+            "explanation": "따로 떨어진 플라스틱 뚜껑 안내예요. 금속·복합재질 뚜껑과 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "vinyl_bag",
+      "name": "비닐봉지·위생팩",
+      "aliases": [
+        "비닐봉투",
+        "검정봉지",
+        "지퍼백",
+        "위생팩",
+        "비닐장갑"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "container",
+      "recognitionKeywords": [
+        "plastic bag",
+        "poly bag",
+        "zipper bag"
+      ],
+      "startNodeId": "clean",
+      "nodes": [
+        {
+          "id": "clean",
+          "prompt": "내용물과 이물질을 제거할 수 있는 비닐 포장재인가요?",
+          "choices": [
+            {
+              "label": "네, 비닐이고 이물질을 제거할 수 있어요",
+              "nextNodeId": "vinyl"
+            },
+            {
+              "label": "오염을 제거할 수 없어요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "비닐인지 잘 모르겠어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "vinyl",
+          "result": {
+            "destination": "비닐류",
+            "steps": [
+              "내용물과 이물질을 제거하고 물기를 털어 주세요.",
+              "흩날리지 않게 투명·반투명 봉투 등에 모아 비닐류로 배출해 주세요."
+            ],
+            "explanation": "비닐 포장재와 고무·천·복합재질 보냉 가방은 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=532",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "오염 제거가 어려운 비닐: 일반 종량제봉투",
+            "steps": [
+              "내용물은 따로 분리해 주세요.",
+              "이물질을 제거할 수 없는 비닐은 지역 기준에 따라 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "비닐의 색보다 이물질을 제거할 수 있는지가 중요해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "사진만으로 재질과 용도를 확정하기 어려워요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "snack_wrapper",
+      "name": "과자·라면 비닐 포장지",
+      "aliases": [
+        "과자봉지",
+        "라면봉지",
+        "빵봉지",
+        "커피봉지",
+        "봉지"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "container",
+      "recognitionKeywords": [
+        "snack wrapper",
+        "food wrapper",
+        "plastic wrapper"
+      ],
+      "startNodeId": "clean",
+      "nodes": [
+        {
+          "id": "clean",
+          "prompt": "내용물과 이물질을 제거할 수 있는 비닐 포장재인가요?",
+          "choices": [
+            {
+              "label": "네, 비닐이고 이물질을 제거할 수 있어요",
+              "nextNodeId": "vinyl"
+            },
+            {
+              "label": "오염을 제거할 수 없어요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "비닐인지 잘 모르겠어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "vinyl",
+          "result": {
+            "destination": "비닐류",
+            "steps": [
+              "내용물과 이물질을 제거하고 물기를 털어 주세요.",
+              "흩날리지 않게 투명·반투명 봉투 등에 모아 비닐류로 배출해 주세요."
+            ],
+            "explanation": "비닐 포장재와 고무·천·복합재질 보냉 가방은 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=622",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "오염 제거가 어려운 비닐: 일반 종량제봉투",
+            "steps": [
+              "내용물은 따로 분리해 주세요.",
+              "이물질을 제거할 수 없는 비닐은 지역 기준에 따라 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "비닐의 색보다 이물질을 제거할 수 있는지가 중요해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "사진만으로 재질과 용도를 확정하기 어려워요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "bubble_wrap",
+      "name": "에어캡·뽁뽁이",
+      "aliases": [
+        "뽁뽁이",
+        "에어캡",
+        "비닐 완충재"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "container",
+      "recognitionKeywords": [
+        "bubble wrap",
+        "air cushion packaging"
+      ],
+      "startNodeId": "clean",
+      "nodes": [
+        {
+          "id": "clean",
+          "prompt": "내용물과 이물질을 제거할 수 있는 비닐 포장재인가요?",
+          "choices": [
+            {
+              "label": "네, 비닐이고 이물질을 제거할 수 있어요",
+              "nextNodeId": "vinyl"
+            },
+            {
+              "label": "오염을 제거할 수 없어요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "비닐인지 잘 모르겠어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "vinyl",
+          "result": {
+            "destination": "비닐류",
+            "steps": [
+              "내용물과 이물질을 제거하고 물기를 털어 주세요.",
+              "흩날리지 않게 투명·반투명 봉투 등에 모아 비닐류로 배출해 주세요."
+            ],
+            "explanation": "비닐 포장재와 고무·천·복합재질 보냉 가방은 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=624",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "오염 제거가 어려운 비닐: 일반 종량제봉투",
+            "steps": [
+              "내용물은 따로 분리해 주세요.",
+              "이물질을 제거할 수 없는 비닐은 지역 기준에 따라 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "비닐의 색보다 이물질을 제거할 수 있는지가 중요해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "사진만으로 재질과 용도를 확정하기 어려워요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "shipping_bag",
+      "name": "택배 비닐봉투",
+      "aliases": [
+        "택배봉투",
+        "비닐 택배포장",
+        "택배 비닐"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "container",
+      "recognitionKeywords": [
+        "shipping bag",
+        "plastic mailer"
+      ],
+      "startNodeId": "clean",
+      "nodes": [
+        {
+          "id": "clean",
+          "prompt": "내용물과 이물질을 제거할 수 있는 비닐 포장재인가요?",
+          "choices": [
+            {
+              "label": "네, 비닐이고 이물질을 제거할 수 있어요",
+              "nextNodeId": "vinyl"
+            },
+            {
+              "label": "오염을 제거할 수 없어요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "비닐인지 잘 모르겠어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "vinyl",
+          "result": {
+            "destination": "비닐류",
+            "steps": [
+              "내용물과 이물질을 제거하고 물기를 털어 주세요.",
+              "흩날리지 않게 투명·반투명 봉투 등에 모아 비닐류로 배출해 주세요."
+            ],
+            "explanation": "비닐 포장재와 고무·천·복합재질 보냉 가방은 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=624",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "오염 제거가 어려운 비닐: 일반 종량제봉투",
+            "steps": [
+              "내용물은 따로 분리해 주세요.",
+              "이물질을 제거할 수 없는 비닐은 지역 기준에 따라 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "비닐의 색보다 이물질을 제거할 수 있는지가 중요해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "사진만으로 재질과 용도를 확정하기 어려워요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "foam_packaging",
+      "name": "스티로폼 상자·완충재",
+      "aliases": [
+        "스티로폼",
+        "발포합성수지",
+        "스티로폼박스",
+        "택배 완충재"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "container",
+      "recognitionKeywords": [
+        "styrofoam",
+        "polystyrene foam",
+        "foam packaging"
+      ],
+      "startNodeId": "clean",
+      "nodes": [
+        {
+          "id": "clean",
+          "prompt": "스티로폼에 붙은 테이프·라벨과 음식물 등 이물질을 제거할 수 있나요?",
+          "choices": [
+            {
+              "label": "네, 깨끗하고 다른 재질을 떼어낼 수 있어요",
+              "nextNodeId": "foam"
+            },
+            {
+              "label": "코팅·접착·오염 때문에 분리하기 어려워요",
+              "nextNodeId": "general"
+            },
+            {
+              "label": "과일을 감싸는 말랑한 망이에요",
+              "nextNodeId": "fruit"
+            }
+          ]
+        },
+        {
+          "id": "foam",
+          "result": {
+            "destination": "발포합성수지류",
+            "steps": [
+              "테이프·송장·다른 재질을 떼고 이물질을 제거해 주세요.",
+              "흩날리지 않게 묶거나 담아 스티로폼 수거 방식에 맞춰 배출해 주세요."
+            ],
+            "explanation": "전자제품 포장 완충재는 구입처 반납도 확인할 수 있어요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "general",
+          "result": {
+            "destination": "종량제·특수마대·대형폐기물 기준 확인",
+            "steps": [
+              "음식물은 먼저 따로 비워 주세요.",
+              "코팅·접착 또는 오염으로 재활용하기 어려운 발포재는 성북구 기준에 맞춰 배출해 주세요."
+            ],
+            "explanation": "건축용 단열재와 포장용 스티로폼은 같은 방식으로 처리하지 않아요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "fruit",
+          "result": {
+            "destination": "과일망: 일반 종량제봉투",
+            "steps": [
+              "과일을 감싼 망 형태 완충재는 스티로폼 상자와 구분해 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "과일 아래에 놓인 PS 트레이와 과일망은 서로 다른 포장재예요.",
+            "sourceUrls": [
+              "https://news.seoul.go.kr/env/archives/558269"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "fruit_foam_net",
+      "name": "과일 포장망",
+      "aliases": [
+        "과일망",
+        "과일 스티로폼망",
+        "사과망"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "seoul",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "container",
+      "recognitionKeywords": [
+        "fruit foam net",
+        "foam net"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "과일과 분리한 뒤 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "망 형태 완충재를 스티로폼 상자·PS 트레이와 구분해요.",
+            "sourceUrls": [
+              "https://news.seoul.go.kr/env/archives/558269"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "water_ice_pack",
+      "name": "물 아이스팩",
+      "aliases": [
+        "물아이스팩",
+        "물 100% 아이스팩"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "container",
+      "recognitionKeywords": [
+        "ice pack",
+        "water ice pack"
+      ],
+      "startNodeId": "confirm_water",
+      "nodes": [
+        {
+          "id": "confirm_water",
+          "prompt": "겉면에 물 100% 등 물 아이스팩이라고 표시되어 있나요?",
+          "choices": [
+            {
+              "label": "네, 물 아이스팩이 맞아요",
+              "nextNodeId": "water"
+            },
+            {
+              "label": "젤이거나 확인할 수 없어요",
+              "nextNodeId": "check_type"
+            }
+          ]
+        },
+        {
+          "id": "water",
+          "result": {
+            "destination": "내용물 비운 뒤 포장재 분리배출",
+            "steps": [
+              "물 아이스팩의 물은 비운 뒤, 비닐 포장은 비닐류로 배출해 주세요.",
+              "종이 등 다른 재질 포장이라면 표시된 배출 방법을 확인해 주세요."
+            ],
+            "explanation": "젤 아이스팩의 내용물은 물과 다르게 처리해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=779",
+              "https://news.seoul.go.kr/env/archives/558269"
+            ]
+          }
+        },
+        {
+          "id": "check_type",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "사진만으로 재질과 용도를 확정하기 어려워요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "gel_ice_pack",
+      "name": "젤 아이스팩",
+      "aliases": [
+        "아이스팩(젤)",
+        "고흡수성수지 아이스팩",
+        "SAP 아이스팩"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "seoul",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "container",
+      "recognitionKeywords": [
+        "gel ice pack"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "재사용·전용 수거함 또는 종량제",
+            "steps": [
+              "재사용하거나 지역에 아이스팩 전용 수거함이 있는지 확인해 주세요.",
+              "수거함이 없다면 뜯지 않은 상태로 종량제 배출 기준을 확인해 주세요."
+            ],
+            "explanation": "젤 내용물을 하수구에 버리지 않아요. 물 아이스팩과 구분해요.",
+            "sourceUrls": [
+              "https://news.seoul.go.kr/env/archives/558269"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "battery",
+      "name": "건전지·분리한 전지",
+      "aliases": [
+        "폐건전지",
+        "AA건전지",
+        "AAA건전지",
+        "단추전지",
+        "리튬전지"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "battery",
+      "recognitionKeywords": [
+        "battery",
+        "batteries",
+        "aa battery",
+        "button battery"
+      ],
+      "startNodeId": "damage",
+      "nodes": [
+        {
+          "id": "damage",
+          "prompt": "전지가 부풀거나 파손·누액된 상태인가요?",
+          "choices": [
+            {
+              "label": "아니요, 정상 형태의 폐전지예요",
+              "nextNodeId": "normal"
+            },
+            {
+              "label": "네 / 상태를 잘 모르겠어요",
+              "nextNodeId": "damaged"
+            }
+          ]
+        },
+        {
+          "id": "normal",
+          "result": {
+            "destination": "전지 전용 수거함",
+            "steps": [
+              "노출된 단자는 절연테이프 등으로 절연하거나 비닐팩에 개별 밀봉해 주세요.",
+              "전지 수거함 또는 지정된 역회수 경로로 배출해 주세요."
+            ],
+            "explanation": "금속처럼 보여도 캔류나 고철류에 섞지 않아요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=537"
+            ]
+          }
+        },
+        {
+          "id": "damaged",
+          "result": {
+            "destination": "파손·누액·팽창 전지: 배출 전 문의",
+            "steps": [
+              "일반 재활용품·종량제봉투에 섞지 말아 주세요.",
+              "기기 제조사나 성북구 담당 부서에 전지 상태를 설명하고 안전한 인계 방법을 확인해 주세요."
+            ],
+            "explanation": "손상된 전지는 정상 전지와 수거 방법이 다를 수 있어요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "power_bank",
+      "name": "보조배터리",
+      "aliases": [
+        "휴대용배터리",
+        "충전배터리",
+        "배터리팩"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "battery",
+      "recognitionKeywords": [
+        "power bank",
+        "portable charger"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "폐가전·전지 전용 수거",
+            "steps": [
+              "임의로 분해하지 말고 제품 그대로 전용 수거 경로를 이용해 주세요.",
+              "부풀거나 파손됐다면 수거함에 바로 넣기 전에 제조사·성북구에 인계 방법을 확인해 주세요."
+            ],
+            "explanation": "배터리가 들어 있는 제품은 플라스틱류·종량제봉투에 섞지 않아요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=537"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "fluorescent_lamp",
+      "name": "형광등",
+      "aliases": [
+        "폐형광등",
+        "환형 형광등",
+        "직관형 형광등"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "lamp",
+      "recognitionKeywords": [
+        "fluorescent lamp",
+        "fluorescent tube"
+      ],
+      "startNodeId": "condition",
+      "nodes": [
+        {
+          "id": "condition",
+          "prompt": "형광등이 깨지지 않은 상태인가요?",
+          "choices": [
+            {
+              "label": "네, 깨지지 않았어요",
+              "nextNodeId": "whole"
+            },
+            {
+              "label": "깨졌어요",
+              "nextNodeId": "broken"
+            }
+          ]
+        },
+        {
+          "id": "whole",
+          "result": {
+            "destination": "형광등 전용 수거함",
+            "steps": [
+              "제품에서 분리할 때 깨뜨리지 않도록 해 주세요.",
+              "포장재는 분리하고 형광등 수거함에 배출해 주세요."
+            ],
+            "explanation": "유리병류와 섞지 않아요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=538",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "broken",
+          "result": {
+            "destination": "깨진 조명: 성북구 처리 방법 확인",
+            "steps": [
+              "파편이 흩어지지 않도록 신문지·테이프 등으로 충분히 감싸 주세요.",
+              "성북구가 안내하는 종량제·특수마대 등 처리 방법을 확인해 주세요."
+            ],
+            "explanation": "깨진 조명은 온전한 조명 수거함에 바로 넣지 않고 지역 기준을 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=538",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "led_lamp",
+      "name": "LED 조명",
+      "aliases": [
+        "LED전구",
+        "LED등",
+        "LED조명"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "lamp",
+      "recognitionKeywords": [
+        "led bulb",
+        "led lamp",
+        "light bulb"
+      ],
+      "startNodeId": "shape",
+      "nodes": [
+        {
+          "id": "shape",
+          "prompt": "깨지지 않은 전구형·직관형 LED인가요?",
+          "choices": [
+            {
+              "label": "네, 전구형·직관형이고 깨지지 않았어요",
+              "nextNodeId": "whole"
+            },
+            {
+              "label": "평판형·십자형 등 다른 형태예요",
+              "nextNodeId": "other"
+            },
+            {
+              "label": "깨졌거나 형태를 모르겠어요",
+              "nextNodeId": "check"
+            }
+          ]
+        },
+        {
+          "id": "whole",
+          "result": {
+            "destination": "형광등 수거함",
+            "steps": [
+              "전구형·직관형 LED를 깨뜨리지 않도록 분리해 주세요.",
+              "형광등 수거함의 표시와 지역 수거 안내에 맞춰 배출해 주세요."
+            ],
+            "explanation": "LED도 형태에 따라 수거 경로가 달라요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=137",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "other",
+          "result": {
+            "destination": "불연성·대형폐기물 기준 확인",
+            "steps": [
+              "조명의 정확한 형태와 크기를 확인해 주세요.",
+              "평판형·십자형 등은 성북구 불연성 또는 대형폐기물 안내에 맞춰 배출해 주세요."
+            ],
+            "explanation": "일반 전구형 LED와 같은 수거 경로로 단정하지 않아요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=137",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check",
+          "result": {
+            "destination": "형태·파손 상태 확인",
+            "steps": [
+              "깨졌다면 파편이 흩어지지 않도록 충분히 포장해 주세요.",
+              "제품 형태와 파손 상태를 확인해 성북구 처리 방법을 찾아 주세요."
+            ],
+            "explanation": "모양이 불확실하거나 파손된 조명은 지역 기준을 확인해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=137",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "button",
+      "name": "옷 단추",
+      "aliases": [
+        "단추",
+        "플라스틱 단추",
+        "금속 단추",
+        "옷단추"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "seoul_other_district_reference",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "small_item",
+      "recognitionKeywords": [
+        "button",
+        "clothing button"
+      ],
+      "startNodeId": "material",
+      "nodes": [
+        {
+          "id": "material",
+          "prompt": "단추의 재질이나 상태를 확인해 주세요.",
+          "choices": [
+            {
+              "label": "다시 쓸 수 있는 옷에 달려 있어요",
+              "nextNodeId": "reuse"
+            },
+            {
+              "label": "열경화성 수지·복합재질 단추예요",
+              "nextNodeId": "resin"
+            },
+            {
+              "label": "금속만으로 된 작은 단추예요",
+              "nextNodeId": "metal"
+            },
+            {
+              "label": "플라스틱 같지만 정확히는 모르겠어요",
+              "nextNodeId": "check"
+            }
+          ]
+        },
+        {
+          "id": "reuse",
+          "result": {
+            "destination": "옷과 함께 재사용",
+            "steps": [
+              "수선·재사용할 수 있다면 단추를 떼지 않고 옷과 함께 활용해 주세요.",
+              "옷을 배출한다면 재사용 가능한 의류인지 확인해 주세요."
+            ],
+            "explanation": "단추가 달린 옷과 떨어진 단추는 상황이 달라요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        },
+        {
+          "id": "resin",
+          "result": {
+            "destination": "수지·복합재질 단추: 종량제 기준 확인",
+            "steps": [
+              "재질이 확실한지 확인하고 흩어지지 않게 모아 주세요.",
+              "열에 잘 녹지 않는 수지·분리 어려운 복합재질 단추는 성북구 종량제 배출 기준을 확인해 주세요."
+            ],
+            "explanation": "단추 모양만 보고 모든 플라스틱을 같은 방식으로 분류하지 않아요.",
+            "sourceUrls": [
+              "https://www.ddm.go.kr/www/contents.do?key=860",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "metal",
+          "result": {
+            "destination": "작은 금속 단추: 금속류 수거 여부 확인",
+            "steps": [
+              "재사용할 수 있는지 먼저 살펴봐 주세요.",
+              "작은 금속 부품을 받는지 성북구 수거처에 확인한 뒤 흩어지지 않게 모아 배출해 주세요."
+            ],
+            "explanation": "소재가 금속이어도 작은 부품의 실제 수거 방식은 지역에서 확인해야 해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        },
+        {
+          "id": "check",
+          "result": {
+            "destination": "재질·용도 확인이 필요해요",
+            "steps": [
+              "제품에 적힌 재질과 분리배출 표시를 확인해 주세요.",
+              "정확한 품목명을 검색하거나 성북구 공식 안내에서 해당 품목을 확인해 주세요."
+            ],
+            "explanation": "단추는 수지·금속·자개·복합재질 등으로 만들어져요. 사진만으로 재질을 확정하지 않아요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionary.do",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "toothbrush",
+      "name": "일반 칫솔",
+      "aliases": [
+        "칫솔",
+        "수동칫솔"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "small_item",
+      "recognitionKeywords": [
+        "toothbrush"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "전동칫솔이 아닌 일반 칫솔인지 확인해 주세요.",
+              "손잡이와 칫솔모가 섞인 일반 칫솔은 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "전동칫솔은 전지가 들어 있는 소형 폐가전으로 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "pen",
+      "name": "볼펜·혼합재질 필기구",
+      "aliases": [
+        "볼펜",
+        "만년필",
+        "마커펜",
+        "형광펜"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "small_item",
+      "recognitionKeywords": [
+        "ballpoint pen",
+        "pen",
+        "marker"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "분리하기 어려운 잉크·금속·플라스틱 혼합 제품은 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "볼펜은 여러 재질이 섞인 작은 제품으로 일반 용기 재활용과 달라요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=394"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "pencil",
+      "name": "연필",
+      "aliases": [
+        "색연필",
+        "나무연필"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "small_item",
+      "recognitionKeywords": [
+        "pencil",
+        "colored pencil"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "연필은 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "나무와 흑연 등이 섞인 작은 필기구는 종이류·고철류로 배출하지 않아요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=316"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "rubber_glove",
+      "name": "고무·라텍스 장갑",
+      "aliases": [
+        "고무장갑",
+        "라텍스 장갑",
+        "실리콘 장갑"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "other",
+      "recognitionKeywords": [
+        "rubber gloves",
+        "latex gloves"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "비닐장갑과 구분해 고무·라텍스 장갑은 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "비닐 포장재처럼 보여도 고무·실리콘 제품은 비닐류와 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=366"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "wet_wipe",
+      "name": "사용한 물티슈",
+      "aliases": [
+        "물티슈",
+        "청소 물티슈",
+        "렌즈 클리너"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "other",
+      "recognitionKeywords": [
+        "wet wipe",
+        "wipe"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "사용한 물티슈는 일반 종량제봉투로 배출해 주세요.",
+              "빈 포장 비닐과 분리되는 플라스틱 캡은 각각 재질별로 나눠 주세요."
+            ],
+            "explanation": "물티슈 본체와 포장재는 배출 방법이 달라요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=375"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "coffee_grounds",
+      "name": "가정에서 나온 커피찌꺼기",
+      "aliases": [
+        "커피박",
+        "커피찌꺼기",
+        "커피가루 찌꺼기"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "seoul",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "food",
+      "recognitionKeywords": [
+        "coffee grounds"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투 또는 별도 회수 안내",
+            "steps": [
+              "가정의 소량 커피찌꺼기는 물기를 줄여 종량제봉투로 배출해 주세요.",
+              "별도 커피박 회수 사업에 참여한다면 해당 수거 기준을 따라 주세요."
+            ],
+            "explanation": "일반 음식물쓰레기와 구분해요. 사업장 커피박 회수 제도와 가정 배출을 혼동하지 않아요.",
+            "sourceUrls": [
+              "https://www.kca.go.kr/webzine/board/view?div=kca_2202&linkId=393&menuId=MENU00322",
+              "https://mediahub.seoul.go.kr/archives/2004122"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "tea_bag",
+      "name": "티백",
+      "aliases": [
+        "녹차티백",
+        "차 티백",
+        "육수팩"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "food",
+      "recognitionKeywords": [
+        "tea bag"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "물기를 줄이고 일반 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "티백 포장재는 종이·합성수지 등이 사용되어 일반 음식물쓰레기나 종이류와 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=419"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "eggshell",
+      "name": "달걀·메추리알 껍데기",
+      "aliases": [
+        "달걀껍데기",
+        "계란껍질",
+        "메추리알껍데기"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "seoul",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "food",
+      "recognitionKeywords": [
+        "eggshell",
+        "egg shell"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투",
+            "steps": [
+              "남은 내용물과 껍데기를 구분해 주세요.",
+              "알 껍데기는 음식물쓰레기에 섞지 말고 종량제봉투로 배출해 주세요."
+            ],
+            "explanation": "동물의 사료 등으로 처리하기 어려운 알 껍데기는 일반쓰레기로 구분해요.",
+            "sourceUrls": [
+              "https://mediahub.seoul.go.kr/archives/2004122",
+              "https://www.kca.go.kr/webzine/board/view?div=kca_2202&linkId=393&menuId=MENU00322"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "shellfish_shell",
+      "name": "조개·굴 껍데기",
+      "aliases": [
+        "조개껍데기",
+        "굴껍질",
+        "꼬막껍질",
+        "전복껍데기"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "food",
+      "recognitionKeywords": [
+        "shellfish shell",
+        "oyster shell",
+        "clam shell"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반쓰레기 배출 기준 확인",
+            "steps": [
+              "살 등 음식 부분과 껍데기를 나눠 주세요.",
+              "가정의 껍데기는 음식물쓰레기에 섞지 말고 성북구 일반쓰레기 배출 기준을 따라 주세요."
+            ],
+            "explanation": "대량 배출은 별도 기준이 있을 수 있어요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/dischargeMethod/dictionaryView.do?niIdx=425",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "banana_peel",
+      "name": "바나나·귤 등 부드러운 과일 껍질",
+      "aliases": [
+        "바나나껍질",
+        "귤껍질",
+        "오렌지껍질",
+        "사과껍질"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "seoul",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "food",
+      "recognitionKeywords": [
+        "banana peel",
+        "orange peel",
+        "fruit peel"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "음식물쓰레기",
+            "steps": [
+              "스티커·비닐 등 음식물이 아닌 것을 제거해 주세요.",
+              "물기를 줄여 음식물 전용 봉투·수거용기에 배출해 주세요."
+            ],
+            "explanation": "부드러운 과일 껍질 안내예요. 단단한 껍데기·씨와 종류를 구분해요.",
+            "sourceUrls": [
+              "https://news.seoul.go.kr/env/archives/558269"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "cooking_oil",
+      "name": "폐식용유",
+      "aliases": [
+        "사용한 식용유",
+        "튀김기름",
+        "남은 기름"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "seoul",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "food",
+      "recognitionKeywords": [
+        "cooking oil",
+        "used cooking oil"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "폐식용유 전용 수거",
+            "steps": [
+              "식힌 기름에 음식물 등 이물질이 섞이지 않게 모아 주세요.",
+              "폐식용유 전용 수거함 또는 성북구가 안내하는 수거 경로를 이용해 주세요.",
+              "아주 소량은 키친타월 등에 흡수시켜 종량제 배출 기준을 확인할 수 있어요."
+            ],
+            "explanation": "기름을 하수구로 흘려보내지 않아요. 국물과 기름이 섞인 배달 음식 잔여물은 별도로 확인해요.",
+            "sourceUrls": [
+              "https://news.seoul.go.kr/env/archives/558269",
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "aluminum_foil",
+      "name": "알루미늄 호일",
+      "aliases": [
+        "은박지",
+        "쿠킹호일",
+        "호일"
+      ],
+      "reviewStatus": "needs_local_review",
+      "sourceScope": "national",
+      "sourceCheckedOn": "2026-10-28",
+      "recognitionGroup": "small_item",
+      "recognitionKeywords": [
+        "aluminum foil",
+        "tin foil"
+      ],
+      "startNodeId": "result",
+      "nodes": [
+        {
+          "id": "result",
+          "result": {
+            "destination": "일반 종량제봉투 기준 확인",
+            "steps": [
+              "음식물은 먼저 분리해 주세요.",
+              "호일은 음료캔과 같은 재활용품으로 단정하지 말고 성북구 종량제 배출 기준에 맞춰 배출해 주세요."
+            ],
+            "explanation": "금속처럼 보여도 알루미늄 호일은 캔류 안내와 구분해요.",
+            "sourceUrls": [
+              "https://www.wasteguide.or.kr/front/bbsList.do?bbsId=BBS_0003",
+              "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"
+            ]
+          }
+        }
+      ]
     }
   ]
 }

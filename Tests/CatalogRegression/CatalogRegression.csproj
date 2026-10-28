@@ -8,5 +8,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(CatalogSourcePath)" Link="WasteCatalog.cs" />
+    <Compile Include="../../Assets/SeongbukAR/Scripts/WasteRecognition.cs" Link="WasteRecognition.cs" />
   </ItemGroup>
 </Project>
