@@ -1,0 +1,18 @@
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]in/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Bb]uilds/
+[Bb]uild/
+.DS_Store
+.idea/
+.vs/
+/*.csproj
+/*.sln
+/*.slnx
+
+# Built from the source target images by ImageArLessonSetup in Unity.
+/Assets/SeongbukAR/Resources/Tracking/WasteLessonImages.asset
+/Assets/SeongbukAR/Resources/Tracking/WasteLessonImages.asset.meta
