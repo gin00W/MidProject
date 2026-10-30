@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SeongbukAR.Learning;
 using SeongbukAR.Notes;
 using SeongbukAR.Scanning;
+using Unity.XR.CoreUtils;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
 
@@ -23,6 +26,11 @@ namespace SeongbukAR
         GuideUi _ui;
         WasteScanController _scanner;
         SpatialGuide _spatial;
+        CardGuideTracker _imageTracker;
+        WasteLessonPreview _lessonPreview;
+        readonly WasteLessonState _lesson = new WasteLessonState();
+        Text _lessonTrackingLabel;
+        bool _guideFromLesson;
         PersonalWasteNotes _notes;
         PersonalWasteNote _noteDraft;
         string _notesLoadError;
@@ -46,6 +54,11 @@ namespace SeongbukAR
         bool _placementPlaced;
 
         bool CanScan => _scanner != null && _scanner.IsSupported;
+        bool IsLessonPreview => editorPreview || Application.isEditor ||
+            Application.platform != RuntimePlatform.IPhonePlayer;
+        public bool IsLessonViewActive => _started && isActiveAndEnabled && _page == Page.Home;
+        public string CurrentLessonItemId => _lesson.ItemId;
+        public int LessonStepIndex => _lesson.StepIndex;
 
         void Awake()
         {
@@ -73,8 +86,8 @@ namespace SeongbukAR
 
         void Start()
         {
-            // Old generated scenes may still contain card tracking and a mascot.
-            // Real-object scanning is now the default interaction.
+            // Existing generated scenes work without rewriting their camera,
+            // signing settings or adding Inspector references after Pull.
             foreach (var tracker in FindObjectsByType<CardGuideTracker>(FindObjectsSortMode.None))
             {
                 tracker.enabled = false;
@@ -83,22 +96,50 @@ namespace SeongbukAR
             }
 
             var cameraManager = FindAnyObjectByType<ARCameraManager>();
-            if (!editorPreview && cameraManager != null)
+            if (IsLessonPreview)
+            {
+                var camera = cameraManager != null ? cameraManager.GetComponent<Camera>() : Camera.main;
+                if (cameraManager != null)
+                {
+                    cameraManager.enabled = false;
+                    var background = cameraManager.GetComponent<ARCameraBackground>();
+                    if (background != null) background.enabled = false;
+                    var pose = cameraManager.GetComponent<TrackedPoseDriver>();
+                    if (pose != null) pose.enabled = false;
+                }
+                _lessonPreview = gameObject.AddComponent<WasteLessonPreview>();
+                _lessonPreview.Configure(camera);
+            }
+            else if (cameraManager != null)
             {
                 cameraManager.autoFocusRequested = true;
                 _scanner = GetComponent<WasteScanController>();
                 if (_scanner == null) _scanner = gameObject.AddComponent<WasteScanController>();
                 _scanner.cameraManager = cameraManager;
                 _scanner.Completed += ScanCompleted;
-                _spatial = GetComponent<SpatialGuide>();
-                if (_spatial == null) _spatial = gameObject.AddComponent<SpatialGuide>();
-                _spatial.Configure(cameraManager.GetComponent<Camera>(), _ui.Regular, _ui.Semibold);
+                var origin = cameraManager.GetComponentInParent<XROrigin>();
+                if (origin != null)
+                {
+                    _imageTracker = origin.GetComponent<CardGuideTracker>();
+                    if (_imageTracker == null) _imageTracker = origin.gameObject.AddComponent<CardGuideTracker>();
+                    _imageTracker.Configure(this, cameraManager.GetComponent<Camera>());
+                    _imageTracker.enabled = true;
+                }
             }
             _started = true;
             ShowHome();
         }
 
-        void Update() => _ui?.UpdateSafeArea();
+        void Update()
+        {
+            _ui?.UpdateSafeArea();
+            if (_page != Page.Home || _lessonTrackingLabel == null) return;
+            TrackingMessage = IsLessonPreview
+                ? "3D 미리보기 · 실제 그림 인식은 아이폰·아이패드에서 확인하세요."
+                : _imageTracker != null ? _imageTracker.Status : "그림 인식을 준비하지 못했어요. 앱 설정을 확인해 주세요.";
+            if (_lessonTrackingLabel.text != TrackingMessage)
+                _lessonTrackingLabel.text = TrackingMessage;
+        }
 
         void OnEnable()
         {
@@ -113,6 +154,7 @@ namespace SeongbukAR
             _acceptScanResult = false;
             _scanner?.CancelScan();
             _spatial?.Clear();
+            _lessonPreview?.Show(_lesson.ItemId, _lesson.StepIndex, false);
             if (_page == Page.Scanning) _page = Page.Home;
         }
 
@@ -136,6 +178,7 @@ namespace SeongbukAR
             if (page != Page.Guide) _spatial?.Clear();
             _notice = null;
             _page = page;
+            _lessonPreview?.Show(_lesson.ItemId, _lesson.StepIndex, page == Page.Home);
             Render();
         }
 
@@ -144,6 +187,8 @@ namespace SeongbukAR
             CurrentItem = null;
             CurrentNode = null;
             _history.Clear();
+            _lesson.Clear();
+            _guideFromLesson = false;
             Navigate(Page.Home);
         }
 
@@ -160,7 +205,7 @@ namespace SeongbukAR
         // answers. A deliberate scan confirmation uses SelectItem(restart:true).
         public bool OpenItem(string id) => SelectItem(id, false, false);
 
-        bool SelectItem(string id, bool restart, bool fromScan)
+        bool SelectItem(string id, bool restart, bool fromScan, bool fromLesson = false)
         {
             var item = _catalog?.Find(id);
             if (item == null) return false;
@@ -169,6 +214,7 @@ namespace SeongbukAR
             CurrentNode = item.FindNode(item.startNodeId);
             _history.Clear();
             _cameFromScan = fromScan;
+            _guideFromLesson = fromLesson;
             _spatial?.Clear();
             Navigate(Page.Guide);
             return true;
@@ -194,6 +240,7 @@ namespace SeongbukAR
                 CurrentNode = _history.Pop();
                 Render();
             }
+            else if (_guideFromLesson) Navigate(Page.Home);
             else if (_cameFromScan) Navigate(Page.Candidates);
             else ShowSearch();
         }
@@ -279,49 +326,92 @@ namespace SeongbukAR
 
         void RenderHome()
         {
-            var page = _ui.Begin(CanScan);
-            HeaderCard(page, "어디다 버려?");
-            if (CanScan)
+            var page = _ui.Begin(true);
+            HeaderCard(page, "어디다 버려? · 그림 AR");
+            var hint = _ui.Card(page, GuideUi.Paper, 10, 4);
+            var item = _catalog?.Find(_lesson.ItemId);
+            _ui.Label(hint, item != null ? item.name : "그림 위에서 분리배출을 배워요", 18, true);
+            _lessonTrackingLabel = _ui.Label(hint, IsLessonPreview
+                ? "3D 미리보기 · 실제 그림 인식은 아이폰·아이패드에서 확인하세요."
+                : _imageTracker != null ? _imageTracker.Status : "학습 그림을 비춰 주세요.",
+                13, false, GuideUi.Muted);
+            var space = GuideUi.NewRect("Image AR Camera View", page);
+            GuideUi.Size(space, flexibleHeight: 1, minHeight: 60);
+            var actions = _ui.Card(page, GuideUi.Paper, 14, 6);
+            if (_lesson.CurrentStep == null)
             {
-                var hint = _ui.Card(page, GuideUi.Paper, 10, 0);
-                _ui.Label(hint, "물건 전체를 흰 테두리 안에 크게 맞춰 주세요.", 15, false,
-                    GuideUi.Muted, TextAnchor.MiddleCenter);
-                var space = GuideUi.NewRect("Camera View", page);
-                GuideUi.Size(space, flexibleHeight: 1);
-                var cameraActions = _ui.Card(page, GuideUi.Paper, 0, 4);
-                _ui.Button(cameraActions, "쓰레기 스캔하기", StartScan, true, 52);
-                var links = _ui.Row(cameraActions);
-                var search = _ui.TextButton(links, "이름으로 찾기", () => ShowSearch(""), 44, 15);
-                var notes = _ui.TextButton(links, "내 메모", ShowNotes, 44, 15);
+                _ui.Label(actions, IsLessonPreview ? "학습할 모형을 선택하세요" : "페트병·배달 용기 학습 그림을 비춰 주세요", 18, true);
+                _ui.Label(actions, IsLessonPreview
+                    ? "버튼으로 분리 과정을 살펴볼 수 있어요."
+                    : "학습 그림 전체가 보이면 그 위에 입체 모형이 나타납니다. 다음 단계를 눌러 부품의 변화를 살펴보세요.",
+                    14, false, GuideUi.Muted);
+                if (IsLessonPreview)
+                {
+                    _ui.Button(actions, "페트병 과정 미리보기", () => StartLesson("pet_bottle"), true);
+                    _ui.Button(actions, "배달 용기 과정 미리보기", () => StartLesson("plastic_container"));
+                }
+                else
+                    _ui.Label(actions, "페트병·배달 용기 학습 그림 전체가 카메라에 들어오게 맞춰 주세요.", 12, false, GuideUi.Muted);
+            }
+            else
+            {
+                _ui.Label(actions, (_lesson.StepIndex + 1) + " / " + _lesson.StepCount + " · " +
+                    _lesson.CurrentStep.Title, 18, true);
+                _ui.Label(actions, _lesson.CurrentStep.Instruction, 14, false, GuideUi.Muted);
+                var controls = _ui.Row(actions, 8);
+                var previous = _ui.Button(controls, "이전 단계", PreviousLessonStep, false, 44, 15);
+                previous.interactable = _lesson.StepIndex > 0;
+                var next = _ui.Button(controls, _lesson.IsComplete ? "처음부터" : "다음 단계",
+                    NextLessonStep, true, 44, 15);
+                GuideUi.Size(previous.transform, flexibleWidth: 1);
+                GuideUi.Size(next.transform, flexibleWidth: 1);
+                var links = _ui.Row(actions, 8);
+                var details = _ui.TextButton(links, "배출 방법 확인", ViewLessonGuide, 40, 14);
+                var reset = _ui.TextButton(links, "다른 그림 보기", ShowHome, 40, 14);
+                GuideUi.Size(details.transform, flexibleWidth: 1);
+                GuideUi.Size(reset.transform, flexibleWidth: 1);
+            }
+            if (_lesson.CurrentStep == null)
+            {
+                var links = _ui.Row(actions, 8);
+                var search = _ui.TextButton(links, "다른 물건 찾기", () => ShowSearch(""), 40, 14);
+                var notes = _ui.TextButton(links, "내 메모", ShowNotes, 40, 14);
                 GuideUi.Size(search.transform, flexibleWidth: 1);
                 GuideUi.Size(notes.transform, flexibleWidth: 1);
-                _ui.ShowScanFrame();
-                return;
             }
-            var content = _ui.Scroll(page);
-            var intro = _ui.Card(content, GuideUi.Paper, 0, 7);
-            _ui.Label(intro, "분리배출 안내", 13, false, GuideUi.Muted);
-            _ui.Label(intro, "무엇을 버릴까요?", 26, true);
-            _ui.Label(intro, "물건 이름으로 배출 방법을 찾아보세요.",
-                15, false, GuideUi.Muted);
+            _lessonPreview?.Show(_lesson.ItemId, _lesson.StepIndex, true);
+        }
 
-            var frame = _ui.Card(content, GuideUi.Soft, 16, 8);
-            GuideUi.Size(frame, height: 174);
-            var mark = _ui.ScanMark(frame, 100);
-            GuideUi.Size(mark, flexibleHeight: 1);
-            _ui.Label(frame, "카메라 스캔은 아이폰·아이패드에서 사용할 수 있습니다.", 13, false,
-                GuideUi.Muted, TextAnchor.MiddleCenter);
+        public bool ObserveLessonImage(string itemId)
+        {
+            if (!IsLessonViewActive) return false;
+            string previous = _lesson.ItemId;
+            if (!_lesson.Select(itemId)) return false;
+            if (previous != _lesson.ItemId) RenderHome();
+            return true;
+        }
 
-            var shortcuts = _ui.Card(content, GuideUi.Paper, 0, 0);
-            _ui.Label(shortcuts, "자주 헷갈리는 물건", 14, true);
-            _ui.Divider(shortcuts);
-            _ui.ListButton(shortcuts, "배달 용기", "엽떡·마라탕 용기에 기름이 남았다면", () => ShowSearch("배달 용기"));
-            _ui.ListButton(shortcuts, "페트병", "몸통·뚜껑·라벨 배출 방법", () => ShowSearch("페트병"));
-            _ui.ListButton(shortcuts, "단추", "작은 생활용품의 재질 확인", () => ShowSearch("단추"));
-            _ui.ListButton(shortcuts, "내 메모", "목록에 없는 물건과 확인할 내용", ShowNotes);
-            var actions = _ui.Card(page, GuideUi.Paper, CanScan ? 12 : 0, 4);
-            _ui.Button(actions, "쓰레기 스캔하기", StartScan, true, 52);
-            _ui.TextButton(actions, "이름으로 직접 찾기", () => ShowSearch(""), 44, 15);
+        void StartLesson(string itemId)
+        {
+            if (!_lesson.Select(itemId)) return;
+            Navigate(Page.Home);
+        }
+
+        void NextLessonStep()
+        {
+            if (_lesson.IsComplete) _lesson.Restart();
+            else _lesson.Next();
+            RenderHome();
+        }
+
+        void PreviousLessonStep()
+        {
+            if (_lesson.Previous()) RenderHome();
+        }
+
+        void ViewLessonGuide()
+        {
+            if (_lesson.ItemId != null) SelectItem(_lesson.ItemId, true, false, true);
         }
 
         void HeaderCard(Transform parent, string title, Action back = null)
@@ -483,10 +573,10 @@ namespace SeongbukAR
                 _ui.Label(note, "참고", 13, true);
                 _ui.Label(note, result.explanation, 15, false, GuideUi.Muted);
             }
-            if (CanScan && _spatial != null)
+            if (WasteLessonState.Supports(CurrentItem.id))
             {
-                _ui.Button(parent, "공간에 안내 놓기", BeginPlacement, true);
-                _ui.Label(parent, "책상이나 바닥을 비춘 뒤 안내판을 놓을 수 있습니다.", 13, false, GuideUi.Muted);
+                string lessonId = CurrentItem.id;
+                _ui.Button(parent, "그림 위에서 과정 배우기", () => StartLesson(lessonId), true);
             }
             if (!string.IsNullOrEmpty(_notice))
                 _ui.Label(parent, _notice, 14, true, GuideUi.Notice);
@@ -506,8 +596,7 @@ namespace SeongbukAR
                 _ui.TextButton(sources, "성북구 수거 안내  ↗", () => Application.OpenURL(
                     "https://www.sb.go.kr/www/selectBbsNttView.do?bbsNo=91&key=5927&nttNo=9502164"));
             }
-            _ui.Button(parent, CanScan ? "다른 물건 스캔하기" : "다른 물건 찾아보기",
-                () => { if (CanScan) StartScan(); else ShowSearch(""); }, !CanScan, 48, 15);
+            _ui.Button(parent, "다른 물건 찾아보기", () => ShowSearch(""), false, 48, 15);
             _ui.TextButton(parent, "이 물건 처음부터 확인", () => SelectItem(CurrentItem.id, true, _cameFromScan));
         }
 

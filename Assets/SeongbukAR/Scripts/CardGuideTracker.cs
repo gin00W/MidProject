@@ -1,80 +1,111 @@
+using System;
+using SeongbukAR.Learning;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
 namespace SeongbukAR
 {
+    // A registered picture supplies the model's position and rotation every
+    // frame. Lost pictures hide the model; reacquisition preserves lesson state.
     [RequireComponent(typeof(ARTrackedImageManager))]
     public sealed class CardGuideTracker : MonoBehaviour
     {
         public GuideApp app;
+        // Retained for old serialized scenes; lesson parts own their materials.
         public Material guideMaterial;
-        ARTrackedImageManager _manager;
-        Transform _visual;
-        string _lastCardId;
+        public bool IsConfigured { get; private set; }
+        public bool IsTracking { get; private set; }
+        public string ActiveImageId { get; private set; }
+        public string Status { get; private set; } = "등록된 학습 그림을 비춰 주세요.";
 
-        void Awake() => _manager = GetComponent<ARTrackedImageManager>();
+        ARTrackedImageManager _manager;
+        WasteLessonVisual _visual;
+
+        public void Configure(GuideApp owner, Camera camera)
+        {
+            app = owner;
+            _manager = GetComponent<ARTrackedImageManager>();
+            var library = Resources.Load<XRReferenceImageLibrary>("Tracking/WasteLessonImages");
+            if (library == null || library.count == 0)
+            {
+                Status = "학습 그림을 불러오지 못했어요. 앱을 업데이트해 주세요.";
+                IsConfigured = false;
+                _manager.enabled = false;
+                return;
+            }
+            try
+            {
+                _manager.enabled = false;
+                _manager.referenceLibrary = library;
+                _manager.requestedMaxNumberOfMovingImages = 1;
+                _manager.enabled = true;
+                var model = new GameObject("Image Anchored Recycling Lesson");
+                model.transform.SetParent(transform, false);
+                _visual = model.AddComponent<WasteLessonVisual>();
+                _visual.Configure(camera);
+                _visual.gameObject.SetActive(false);
+                IsConfigured = true;
+            }
+            catch (Exception exception)
+            {
+                IsConfigured = false;
+                Status = "이 기기에서 그림 인식을 준비하지 못했어요.";
+                Debug.LogWarning("Image AR lesson setup failed: " + exception.Message);
+            }
+        }
 
         void Update()
         {
-            if (app == null) return;
+            if (!IsConfigured || app == null || !app.IsLessonViewActive ||
+                !_manager.isActiveAndEnabled || ARSession.state != ARSessionState.SessionTracking)
+            {
+                Hide();
+                if (IsConfigured)
+                    Status = "카메라를 준비하고 있어요. 학습 그림 전체를 비춰 주세요.";
+                return;
+            }
             ARTrackedImage found = null;
             foreach (var image in _manager.trackables)
             {
-                if (image.trackingState != TrackingState.Tracking) continue;
-                found = image;
-                break;
+                if (image.trackingState != TrackingState.Tracking ||
+                    !WasteLessonState.Supports(image.referenceImage.name)) continue;
+                // Keep the current visible image when two targets overlap.
+                if (found == null) found = image;
+                if (image.referenceImage.name == app.CurrentLessonItemId)
+                {
+                    found = image;
+                    break;
+                }
             }
             if (found == null)
             {
-                if (_visual != null) _visual.gameObject.SetActive(false);
-                if (_lastCardId != null)
-                    app.TrackingMessage = "카드를 다시 비춰 주세요. 선택한 안내는 유지됩니다.";
-                _lastCardId = null;
+                Hide();
+                Status = app.CurrentLessonItemId == null
+                    ? "페트병 또는 배달 용기 학습 그림 전체를 비춰 주세요."
+                    : "그림을 다시 비추면 보던 단계부터 이어집니다.";
                 return;
             }
             string id = found.referenceImage.name;
-            if (_lastCardId != id)
-            {
-                _lastCardId = id;
-                if (!app.OpenItem(id))
-                {
-                    if (_visual != null) _visual.gameObject.SetActive(false);
-                    return;
-                }
-            }
-            if (app.CurrentItem == null || app.CurrentItem.id != id)
-            {
-                if (_visual != null) _visual.gameObject.SetActive(false);
-                return;
-            }
-            app.TrackingMessage = "카드 인식: " + app.CurrentItem.name;
-            if (_visual == null) CreateVisual();
+            if (!app.ObserveLessonImage(id)) { Hide(); return; }
+            ActiveImageId = id;
+            IsTracking = true;
+            Status = "그림 인식 중 · 그림을 움직여 모형을 살펴보세요.";
+            _visual.transform.SetPositionAndRotation(found.transform.position, found.transform.rotation);
             _visual.gameObject.SetActive(true);
-            _visual.SetPositionAndRotation(found.transform.position, found.transform.rotation);
-            _visual.position += found.transform.up * (0.04f + Mathf.Sin(Time.time * 2f) * 0.004f);
+            _visual.Show(id, app.LessonStepIndex);
         }
 
-        void CreateVisual()
+        void Hide()
         {
-            _visual = new GameObject("AR Guide Mascot").transform;
-            AddPart(PrimitiveType.Sphere, Vector3.zero, new Vector3(0.045f, 0.045f, 0.045f));
-            AddPart(PrimitiveType.Cube, new Vector3(0, -0.027f, 0), new Vector3(0.038f, 0.025f, 0.032f));
-            AddPart(PrimitiveType.Cube, new Vector3(-0.01f, 0.004f, -0.022f), Vector3.one * 0.006f);
-            AddPart(PrimitiveType.Cube, new Vector3(0.01f, 0.004f, -0.022f), Vector3.one * 0.006f);
+            IsTracking = false;
+            ActiveImageId = null;
+            if (_visual != null) _visual.gameObject.SetActive(false);
         }
 
-        void AddPart(PrimitiveType type, Vector3 position, Vector3 scale)
-        {
-            var part = GameObject.CreatePrimitive(type);
-            part.transform.SetParent(_visual, false);
-            part.transform.localPosition = position;
-            part.transform.localScale = scale;
-            part.GetComponent<Renderer>().sharedMaterial = guideMaterial;
-            Destroy(part.GetComponent<Collider>());
-        }
+        void OnDisable() => Hide();
 
-        void OnDisable()
+        void OnDestroy()
         {
             if (_visual != null) Destroy(_visual.gameObject);
         }
