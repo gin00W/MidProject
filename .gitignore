@@ -16,3 +16,5 @@
 # Built from the source target images by ImageArLessonSetup in Unity.
 /Assets/SeongbukAR/Resources/Tracking/WasteLessonImages.asset
 /Assets/SeongbukAR/Resources/Tracking/WasteLessonImages.asset.meta
+/Assets/ChessAR/Resources/Chess/BoardImages.asset
+/Assets/ChessAR/Resources/Chess/BoardImages.asset.meta
