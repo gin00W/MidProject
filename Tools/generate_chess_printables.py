@@ -30,9 +30,9 @@ INK = '#252525'
 MUTED = '#666666'
 RULE = '#BBBBBB'
 WHITE = '#FFFFFF'
-FONT_ROOT = ROOT / 'Assets/SeongbukAR/Resources/Fonts'
-FONT_REGULAR = FONT_ROOT / 'SUIT-Regular.otf'
-FONT_BOLD = FONT_ROOT / 'SUIT-SemiBold.otf'
+FONT_ROOT = ROOT / 'Assets/ChessAR/Resources/Chess/Fonts'
+FONT_REGULAR = FONT_ROOT / 'Pretendard-Regular.otf'
+FONT_BOLD = FONT_ROOT / 'Pretendard-SemiBold.otf'
 
 
 def px(mm: float) -> int:

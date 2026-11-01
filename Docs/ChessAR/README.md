@@ -48,6 +48,8 @@ flowchart LR
 
 등록 이미지의 이름은 `chess_board`이며, 라이브러리는 `Resources/Chess/BoardImages.asset`로 생성합니다. 기기 빌드 전에 실제 이미지 데이터를 준비하도록 설정합니다. 미리보기는 3D 모형의 사용 예시이고, 실제 카메라 인식 성공을 흉내 내지 않습니다.
 
+앱의 본문·버튼·말 기호와 출력물은 Pretendard Regular·SemiBold를 사용합니다. 글꼴과 SIL Open Font License 전문은 `Assets/ChessAR/Resources/Chess/Fonts/`에 포함합니다.
+
 ## 기존 프로젝트와의 구분
 
 새 브랜치는 **`codex/chess-ar-learning-20261031`**이며, 기존 분리배출 브랜치는 **`codex/seongbuk-ar-starter-20261022`**에 유지합니다. 새 소스·생성 장면은 `Assets/ChessAR`에 둡니다. 이전 소스 파일이 저장소에 남아 있어도 체스 장면은 기존 분리배출 앱을 생성하지 않습니다.

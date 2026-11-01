@@ -59,7 +59,7 @@ namespace ChessAR
 
         public void Configure(Font font)
         {
-            _font = font != null ? font : Resources.Load<Font>("Fonts/SUIT-SemiBold");
+            _font = font != null ? font : Resources.Load<Font>("Chess/Fonts/Pretendard-SemiBold");
             if (_font == null) _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             EnsureBuilt();
             foreach (var piece in _pieces)
@@ -130,7 +130,7 @@ namespace ChessAR
         {
             if (_built) return;
             _built = true;
-            if (_font == null) _font = Resources.Load<Font>("Fonts/SUIT-SemiBold");
+            if (_font == null) _font = Resources.Load<Font>("Chess/Fonts/Pretendard-SemiBold");
             if (_font == null) _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             Shader shader = Resources.Load<Shader>("Chess/LessonModel");
             if (shader == null) shader = Shader.Find("Standard");

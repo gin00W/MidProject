@@ -11,7 +11,7 @@
 
 [시작·실행 순서](START_HERE.md) · [체스판 PDF](Docs/ChessAR/ChessBoard.pdf) · [종이 말 PDF](Docs/ChessAR/PaperPieces.pdf) · [구조와 발표 설명](Docs/ChessAR/README.md)
 
-체스 소스만 필요한 경우 [ChessAR-Starter.zip](ChessAR-Starter.zip)을 사용할 수 있습니다. 체스 코드·출력물·공용 SUIT 글꼴을 포함하며 기존 분리배출 런타임은 포함하지 않습니다. 기존 프로젝트를 사용하고 있다면 새 브랜치로 전환하는 방식이 설정을 재사용하기 편합니다.
+체스 소스만 필요한 경우 [ChessAR-Starter.zip](ChessAR-Starter.zip)을 사용할 수 있습니다. 체스 코드·출력물·Pretendard 글꼴을 포함하며 기존 분리배출 런타임은 포함하지 않습니다. 기존 프로젝트를 사용하고 있다면 새 브랜치로 전환하는 방식이 설정을 재사용하기 편합니다.
 
 현재 브랜치는 **`codex/chess-ar-learning-20261031`**입니다. 체스 소스·장면은 `Assets/ChessAR`에 분리되어 있으며, 기존 분리배출 브랜치 `codex/seongbuk-ar-starter-20261022`는 유지합니다. `Chess AR` 메뉴로 체스 장면을 준비하고 **새 iOS 출력 폴더**를 사용합니다.
 

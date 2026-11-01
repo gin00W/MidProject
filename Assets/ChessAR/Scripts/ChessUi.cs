@@ -25,8 +25,8 @@ namespace ChessAR
 
         internal ChessUi(Transform parent)
         {
-            Regular = Resources.Load<Font>("Fonts/SUIT-Regular");
-            Bold = Resources.Load<Font>("Fonts/SUIT-SemiBold");
+            Regular = Resources.Load<Font>("Chess/Fonts/Pretendard-Regular");
+            Bold = Resources.Load<Font>("Chess/Fonts/Pretendard-SemiBold");
             if (Regular == null) Regular = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (Bold == null) Bold = Regular;
             _root = new GameObject("Chess Interface", typeof(RectTransform), typeof(Canvas),
