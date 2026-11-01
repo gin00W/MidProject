@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/SeongbukAR/Scripts/Scanning/ScanModels.cs" Link="ScanModels.cs" />
+    <Compile Include="../../Assets/SeongbukAR/Scripts/Scanning/ScanFrameOrientation.cs" Link="ScanFrameOrientation.cs" />
+    <Compile Include="../../Assets/SeongbukAR/Scripts/Scanning/ScanRequestState.cs" Link="ScanRequestState.cs" />
+    <Compile Include="../../Assets/SeongbukAR/Scripts/Scanning/ScanCaptureGeometry.cs" Link="ScanCaptureGeometry.cs" />
+  </ItemGroup>
+</Project>

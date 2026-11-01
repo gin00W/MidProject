@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/SeongbukAR/Scripts/Notes/PersonalWasteNotes.cs" Link="PersonalWasteNotes.cs" />
+    <Compile Include="../../Assets/SeongbukAR/Scripts/Notes/PersonalWasteNoteFile.cs" Link="PersonalWasteNoteFile.cs" />
+  </ItemGroup>
+</Project>

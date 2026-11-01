@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <CatalogSourcePath Condition="'$(CatalogSourcePath)' == ''">../../Assets/SeongbukAR/Scripts/WasteCatalog.cs</CatalogSourcePath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(CatalogSourcePath)" Link="WasteCatalog.cs" />
+    <Compile Include="../../Assets/SeongbukAR/Scripts/WasteRecognition.cs" Link="WasteRecognition.cs" />
+  </ItemGroup>
+</Project>
