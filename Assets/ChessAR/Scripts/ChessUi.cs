@@ -216,13 +216,15 @@ namespace ChessAR
             return rect;
         }
 
-        internal static void Size(Transform target, float height = -1, float flexibleWidth = -1, float flexibleHeight = -1)
+        internal static void Size(Transform target, float? height = null, float? flexibleWidth = null,
+            float? flexibleHeight = null)
         {
             var element = target.GetComponent<LayoutElement>();
             if (element == null) element = target.gameObject.AddComponent<LayoutElement>();
-            element.preferredHeight = height;
-            element.flexibleWidth = flexibleWidth;
-            element.flexibleHeight = flexibleHeight;
+            // Width-only changes must retain the button's existing height.
+            if (height.HasValue) element.preferredHeight = height.Value;
+            if (flexibleWidth.HasValue) element.flexibleWidth = flexibleWidth.Value;
+            if (flexibleHeight.HasValue) element.flexibleHeight = flexibleHeight.Value;
         }
 
         internal static void Stretch(RectTransform rect, float x = 0, float y = 0)
