@@ -11,11 +11,11 @@ namespace ChessAR
     // Chess has its own interface and scenes; the recycling app is not loaded.
     internal sealed class ChessUi
     {
-        internal static readonly Color Paper = Hex("F8F5EE");
-        internal static readonly Color Ink = Hex("292B2B");
-        internal static readonly Color Muted = Hex("686660");
-        internal static readonly Color Accent = Hex("915A35");
-        internal static readonly Color Line = Hex("DAD4C9");
+        internal static readonly Color Paper = Color.white;
+        internal static readonly Color Ink = Hex("242424");
+        internal static readonly Color Muted = Hex("6A6A6A");
+        internal static readonly Color Accent = Hex("416B83");
+        internal static readonly Color Line = Hex("E1E1E1");
         internal readonly Font Regular;
         internal readonly Font Bold;
         readonly GameObject _root;
@@ -81,8 +81,8 @@ namespace ChessAR
             Stretch(rect);
             _page = rect.gameObject;
             var layout = rect.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(18, 18, 10, 12);
-            layout.spacing = 10;
+            layout.padding = new RectOffset(20, 20, 14, 16);
+            layout.spacing = 12;
             layout.childControlHeight = layout.childControlWidth = true;
             layout.childForceExpandHeight = false;
             layout.childForceExpandWidth = true;
@@ -152,6 +152,46 @@ namespace ChessAR
             return button;
         }
 
+        internal Button TextButton(Transform parent, string title, Action action,
+            float height = 44, int size = 14, bool selected = false)
+        {
+            var button = Button(parent, title, action, false, height, size);
+            button.GetComponent<Image>().color = Color.clear;
+            var label = button.GetComponentInChildren<Text>();
+            label.font = selected ? Bold : Regular;
+            label.color = selected ? Ink : Muted;
+            button.targetGraphic = label;
+            return button;
+        }
+
+        internal Button Tab(Transform parent, string title, Action action, bool selected, int size = 14,
+            bool compact = false)
+        {
+            var button = TextButton(parent, title, action, 44, size, selected);
+            Stretch(button.GetComponentInChildren<Text>().rectTransform, compact ? 3 : 8, 4);
+            if (selected)
+            {
+                var line = Rect("Selected tab", button.transform);
+                line.anchorMin = Vector2.zero;
+                line.anchorMax = Vector2.right;
+                line.pivot = new Vector2(.5f, 0);
+                line.sizeDelta = new Vector2(-16, 2);
+                var image = line.gameObject.AddComponent<Image>();
+                image.color = Ink;
+                image.raycastTarget = false;
+            }
+            return button;
+        }
+
+        internal void Divider(Transform parent)
+        {
+            var rect = Rect("Divider", parent);
+            var image = rect.gameObject.AddComponent<Image>();
+            image.color = Line;
+            image.raycastTarget = false;
+            Size(rect, height: 1);
+        }
+
         internal void Preview(Transform parent, Texture texture, Action rotate)
         {
             var imageRect = Rect("3D Preview", parent);
@@ -161,11 +201,11 @@ namespace ChessAR
             var fit = imageRect.gameObject.AddComponent<AspectRatioFitter>();
             fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
             fit.aspectRatio = 1;
-            var control = Button(parent, "시점 회전", rotate, false, 32, 12).GetComponent<RectTransform>();
+            var control = TextButton(parent, "돌려보기", rotate, 36, 12).GetComponent<RectTransform>();
             control.GetComponent<LayoutElement>().ignoreLayout = true;
             control.anchorMin = control.anchorMax = Vector2.one;
             control.pivot = Vector2.one;
-            control.sizeDelta = new Vector2(85, 32);
+            control.sizeDelta = new Vector2(85, 36);
             control.anchoredPosition = new Vector2(-4, -4);
         }
 

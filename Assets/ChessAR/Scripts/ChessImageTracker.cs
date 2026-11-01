@@ -9,7 +9,7 @@ namespace ChessAR
     public sealed class ChessImageTracker : MonoBehaviour
     {
         public bool IsTracking { get; private set; }
-        public string Status { get; private set; } = "출력한 체스판 전체를 비춰 주세요.";
+        public string Status { get; private set; } = "체스판 전체를 비춰 주세요.";
         ARTrackedImageManager _manager;
         ChessApp _app;
         ChessBoardVisual _visual;
@@ -56,7 +56,7 @@ namespace ChessAR
             if (!_manager.isActiveAndEnabled || ARSession.state != ARSessionState.SessionTracking)
             {
                 Hide();
-                Status = "카메라를 준비하고 있어요. 출력판 전체를 천천히 비춰 주세요.";
+                Status = "카메라 준비 중";
                 return;
             }
             ARTrackedImage found = null;
@@ -71,11 +71,11 @@ namespace ChessAR
             if (found == null)
             {
                 Hide();
-                Status = "출력판을 다시 비추면 보던 안내가 이어집니다.";
+                Status = "체스판을 다시 비춰 주세요.";
                 return;
             }
             IsTracking = true;
-            Status = "출력판 인식 중 · 판 위의 위치를 확인하세요.";
+            Status = "판 인식 중";
             _visual.transform.SetPositionAndRotation(found.transform.position, found.transform.rotation);
             _visual.gameObject.SetActive(true);
             if (_app.Lesson.Mode == LessonMode.Setup) _visual.ShowSetup(_app.Lesson.SetupStep);

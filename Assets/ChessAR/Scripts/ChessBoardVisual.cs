@@ -136,14 +136,14 @@ namespace ChessAR
             if (shader == null) shader = Shader.Find("Standard");
             if (shader == null) shader = Shader.Find("Unlit/Color");
             if (shader == null) shader = Shader.Find("Hidden/InternalErrorShader");
-            _white = Material(shader, "White pieces", new Color(.95f, .94f, .88f));
-            _black = Material(shader, "Black pieces", new Color(.19f, .23f, .27f));
-            _whiteTrim = Material(shader, "White piece detail", new Color(.58f, .61f, .58f));
-            _blackTrim = Material(shader, "Black piece detail", new Color(.43f, .49f, .54f));
-            _destination = Material(shader, "Movement destination", new Color(.27f, .72f, .78f));
-            _capture = Material(shader, "Capture destination", new Color(.91f, .43f, .26f));
-            _selected = Material(shader, "Selected source", new Color(.27f, .76f, .48f));
-            _orientation = Material(shader, "Orientation and queen square", new Color(.97f, .73f, .24f));
+            _white = Material(shader, "White pieces", new Color32(238, 238, 236, 255));
+            _black = Material(shader, "Black pieces", new Color32(46, 46, 46, 255));
+            _whiteTrim = Material(shader, "White piece detail", new Color32(156, 156, 153, 255));
+            _blackTrim = Material(shader, "Black piece detail", new Color32(105, 105, 105, 255));
+            _destination = Material(shader, "Movement destination", new Color32(135, 155, 166, 255));
+            _capture = Material(shader, "Capture destination", new Color32(180, 110, 93, 255));
+            _selected = Material(shader, "Selected source", new Color32(65, 107, 131, 255));
+            _orientation = Material(shader, "Orientation and queen square", new Color32(155, 138, 108, 255));
             _outlineMesh = BuildOutline();
             _dotMesh = BuildDisk(.0028f);
             _arrowMesh = BuildArrow();
@@ -352,7 +352,9 @@ namespace ChessAR
             label.font = _font;
             label.fontSize = 23;
             label.alignment = TextAnchor.MiddleCenter;
-            label.color = side == Side.White ? new Color(.12f, .17f, .2f) : new Color(.98f, .97f, .91f);
+            label.color = side == Side.White
+                ? new Color32(45, 45, 45, 255)
+                : new Color32(244, 244, 240, 255);
             label.text = Letter(kind);
             label.raycastTarget = false;
             // Keep base lettering facing the white side even for black pieces.

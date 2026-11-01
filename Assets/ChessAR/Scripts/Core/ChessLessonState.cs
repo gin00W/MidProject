@@ -34,29 +34,29 @@ namespace ChessAR
             switch (kind)
             {
                 case PieceKind.Pawn:
-                    return new ChessExample("폰 · 앞과 대각선의 차이",
-                        "폰은 앞으로 한 칸, 처음에는 두 칸 갈 수 있어요. 상대 말은 대각선 한 칸에 있을 때 잡아요. d2의 흰 폰을 기준으로 봅니다.",
+                    return new ChessExample("폰의 이동",
+                        "앞으로 한 칸, 처음에는 두 칸까지 갑니다.\n상대 말은 대각선 한 칸으로 잡습니다.",
                         At(kind, Side.White, "d2"), At(PieceKind.Pawn, Side.Black, "c3"), At(PieceKind.Pawn, Side.White, "e3"));
                 case PieceKind.Rook:
-                    return new ChessExample("룩 · 가로와 세로",
-                        "가로·세로로 이동해요. 같은 편 말 앞에서 멈추고, 상대 말을 잡으면 그 칸에서 멈춥니다.",
+                    return new ChessExample("룩의 이동",
+                        "가로·세로로 이동합니다. 같은 편 말 앞에서 멈추고, 상대 말을 잡으면 그 칸에서 멈춥니다.",
                         At(kind, Side.White, "d4"), At(PieceKind.Pawn, Side.White, "d6"), At(PieceKind.Pawn, Side.Black, "f4"));
                 case PieceKind.Knight:
-                    return new ChessExample("나이트 · 말 위를 뛰어넘기",
-                        "두 칸과 한 칸을 꺾어 이동해요. 중간의 말을 뛰어넘을 수 있지만 같은 편 말이 있는 칸에는 내려앉지 못해요.",
+                    return new ChessExample("나이트의 이동",
+                        "두 칸과 한 칸을 꺾어 L자로 갑니다. 다른 말을 뛰어넘을 수 있지만, 같은 편 말이 있는 칸에는 놓지 않습니다.",
                         At(kind, Side.White, "d4"), At(PieceKind.Pawn, Side.White, "d5"),
                         At(PieceKind.Pawn, Side.White, "f5"), At(PieceKind.Pawn, Side.Black, "e6"));
                 case PieceKind.Bishop:
-                    return new ChessExample("비숍 · 대각선",
-                        "대각선으로 이동해요. 중간의 말을 뛰어넘지 못하며, 처음 서 있던 칸과 같은 색의 칸으로만 움직입니다.",
+                    return new ChessExample("비숍의 이동",
+                        "대각선으로 이동합니다. 다른 말을 뛰어넘을 수 없고, 처음과 같은 색의 칸으로만 갑니다.",
                         At(kind, Side.White, "d4"), At(PieceKind.Pawn, Side.White, "f6"), At(PieceKind.Pawn, Side.Black, "b6"));
                 case PieceKind.Queen:
-                    return new ChessExample("퀸 · 직선과 대각선",
-                        "룩과 비숍의 이동 방향을 함께 써요. 여러 칸 갈 수 있지만 다른 말을 뛰어넘지는 못해요.",
+                    return new ChessExample("퀸의 이동",
+                        "가로·세로·대각선으로 이동합니다.\n다른 말을 뛰어넘을 수 없습니다.",
                         At(kind, Side.White, "d4"), At(PieceKind.Pawn, Side.White, "d6"), At(PieceKind.Pawn, Side.Black, "f4"));
                 case PieceKind.King:
-                    return new ChessExample("킹 · 주변 한 칸",
-                        "모든 방향으로 한 칸씩 움직여요. 실제 경기에서는 공격받는 칸으로 갈 수 없어요. 여기서는 방향과 같은 편 말이 있는 칸만 살펴봅니다.",
+                    return new ChessExample("킹의 이동",
+                        "주변 한 칸으로 이동합니다. 실제 경기에서는 공격받는 칸으로 갈 수 없습니다. 여기서는 기본 방향만 표시합니다.",
                         At(kind, Side.White, "d4"), At(PieceKind.Pawn, Side.White, "c3"), At(PieceKind.Pawn, Side.Black, "e4"));
                 default: throw new ArgumentOutOfRangeException(nameof(kind));
             }
@@ -67,15 +67,15 @@ namespace ChessAR
     {
         static readonly string[] SetupTitles =
         {
-            "판 방향 확인", "흰색 폰 배치", "흰색 뒷줄 배치", "검은색 폰 배치", "검은색 뒷줄 배치"
+            "판 방향", "흰 폰 놓기", "흰 말의 뒷줄", "검은 폰 놓기", "검은 말의 뒷줄"
         };
         static readonly string[] SetupInstructions =
         {
-            "흰색 쪽에서 봤을 때 오른쪽 아래 h1 칸이 밝은색인지 확인하세요. a1은 왼쪽 아래의 어두운 칸입니다.",
-            "흰색 폰 여덟 개를 a2부터 h2까지 놓으세요. 흰색 폰은 숫자가 커지는 방향으로 전진합니다.",
-            "a1부터 룩·나이트·비숍·퀸·킹·비숍·나이트·룩을 놓으세요. 흰 퀸은 밝은 d1, 킹은 e1입니다.",
-            "검은색 폰 여덟 개를 a7부터 h7까지 놓으세요. 검은색 폰은 숫자가 작아지는 방향으로 전진합니다.",
-            "a8부터 룩·나이트·비숍·퀸·킹·비숍·나이트·룩을 놓으세요. 검은 퀸은 어두운 d8, 킹은 e8입니다. 처음 배치가 완성됐어요."
+            "흰 말 쪽에서 오른쪽 아래 h1이 밝은 칸이 되도록 놓으세요.",
+            "두 번째 줄 a2부터 h2까지 흰 폰 여덟 개를 놓으세요.",
+            "a1부터 룩·나이트·비숍·퀸·킹·비숍·나이트·룩 순서입니다. 퀸은 밝은 d1, 킹은 e1에 놓으세요.",
+            "일곱 번째 줄 a7부터 h7까지 검은 폰 여덟 개를 놓으세요.",
+            "a8부터 룩·나이트·비숍·퀸·킹·비숍·나이트·룩 순서입니다. 퀸은 어두운 d8, 킹은 e8에 놓으세요."
         };
         ChessExample _example = ChessExamples.For(PieceKind.Pawn);
 
